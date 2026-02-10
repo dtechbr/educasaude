@@ -10,39 +10,33 @@
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
         .row-container { padding: 0 4% 30px 4%; }
-        .row-header { font-size: 1.4vw; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; letter-spacing: 1px; }
-        .row-header i { margin-right: 10px; color: #E50914; }
+        .row-header { font-size: 1.4vw; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; }
+        
+        /* Netflix Style Scroller */
+        .scroller { display: flex; overflow-x: auto; gap: 15px; scroll-behavior: smooth; padding: 15px 0; }
+        .scroller::-webkit-scrollbar { display: none; }
         
         .netflix-card { 
             position: relative; min-width: 280px; height: 160px; background: #2f2f2f; 
-            border-radius: 6px; cursor: pointer; transition: transform 0.3s; overflow: hidden;
+            border-radius: 6px; cursor: pointer; transition: 0.3s; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .netflix-card:hover { transform: scale(1.08); z-index: 10; border-color: #E50914; }
         .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
-        .card-info { 
-            position: absolute; bottom: 0; left: 0; right: 0; 
-            background: linear-gradient(transparent, rgba(0,0,0,0.95)); 
-            padding: 12px; opacity: 0; transition: opacity 0.2s;
-        }
+        .card-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 12px; opacity: 0; transition: 0.2s; }
         .netflix-card:hover .card-info { opacity: 1; }
         
-        .doc-thumb { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1f1f1f; }
-        .scroller { display: flex; overflow-x: auto; gap: 15px; scroll-behavior: smooth; padding: 15px 0; }
-        .scroller::-webkit-scrollbar { display: none; }
-        .hidden { display: none !important; }
-
-        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; border-bottom: 2px solid transparent !important; }
+        .doc-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1f1f1f; }
+        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .netflix-input:focus { border-bottom: 2px solid #E50914 !important; }
-        
-        lite-youtube { width: 100%; height: 100%; border-radius: 8px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4">
         <div class="bg-[#181818]/95 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
-            <h1 class="text-red-600 font-black text-4xl mb-8 text-center italic tracking-tighter uppercase underline decoration-red-600">EDUCA<span class="text-white">SAÚDE</span></h1>
+            <h1 class="text-red-600 font-black text-4xl mb-8 text-center italic tracking-tighter uppercase">EDUCA<span class="text-white">SAÚDE</span></h1>
             
             <div id="login-form">
                 <div class="space-y-4">
@@ -57,53 +51,47 @@
             </div>
 
             <div id="signup-form" class="hidden">
-                <h2 class="text-white font-black mb-4 uppercase italic tracking-tighter">Solicitar Cadastro</h2>
+                <h2 class="text-white font-black mb-4 uppercase italic">Solicitar Cadastro</h2>
                 <div class="space-y-4">
                     <input type="text" id="signup-nome" placeholder="Nome Completo" class="netflix-input">
-                    <input type="email" id="signup-email" placeholder="E-mail Corporativo" class="netflix-input">
-                    <input type="password" id="signup-password" placeholder="Crie uma Senha (mín. 6)" class="netflix-input">
+                    <input type="email" id="signup-email" placeholder="E-mail de Trabalho" class="netflix-input">
+                    <input type="password" id="signup-password" placeholder="Criar Senha (mín. 6)" class="netflix-input">
                     <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase tracking-widest">Enviar Solicitação</button>
-                    <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-black uppercase tracking-widest">Voltar</button>
+                    <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-black uppercase">Voltar</button>
                 </div>
             </div>
-            <p id="auth-msg" class="text-xs text-center mt-6 font-bold text-red-500 h-4"></p>
+            <p id="auth-msg" class="text-xs text-center mt-6 font-bold text-red-500"></p>
         </div>
     </div>
 
     <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent transition-all duration-500" id="navbar">
+        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80" id="navbar">
             <h1 class="text-red-600 font-black text-2xl italic tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
             <div class="flex items-center gap-6">
                 <div class="text-right">
-                    <p id="user-display-email" class="text-[10px] font-black text-white uppercase italic tracking-widest"></p>
-                    <button onclick="fazerLogout()" class="text-[9px] text-red-600 font-black uppercase hover:underline italic">Encerrar Sessão</button>
+                    <p id="user-display-email" class="text-[10px] font-bold text-white"></p>
+                    <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic">Sair</button>
                 </div>
-                <div class="w-10 h-10 bg-blue-700 border-2 border-white/20 rounded-md flex items-center justify-center text-xs font-black shadow-lg">GN</div>
+                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-xs font-bold">GN</div>
             </div>
         </nav>
 
-        <header class="relative h-[65vh] w-full flex items-end pb-24 px-12 bg-cover bg-center mb-10 border-b border-white/5" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
-            <div class="max-w-3xl">
-                <span class="bg-red-600 text-[10px] font-black px-3 py-1 rounded-sm mb-4 inline-block tracking-widest uppercase">Vila Dutra | Bauru</span>
-                <h2 class="text-6xl font-black mb-4 uppercase italic leading-none tracking-tighter">Biblioteca de <br><span class="text-red-600">Conhecimento</span></h2>
-                <p class="text-lg text-gray-300 font-medium max-w-xl">Bem-vindo ao repositório central da USF Vila Dutra. Acesse treinamentos técnicos, portarias e guias da SORRI-BAURU.</p>
+        <header class="relative h-[55vh] w-full flex items-end pb-16 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
+            <div class="max-w-2xl">
+                <span class="bg-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block">VILA DUTRA | BAURU</span>
+                <h2 class="text-6xl font-black mb-4 uppercase italic tracking-tighter leading-none">Educação <br>Permanente</h2>
             </div>
         </header>
 
-        <section id="categorias-container">
-            </section>
+        <section id="categorias-container"></section>
     </div>
 
     <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-4">
         <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl border border-white/10">
-            <div id="content-area" class="aspect-video bg-black flex items-center justify-center">
-                </div>
-            <div class="p-8 flex justify-between items-center bg-[#181818] border-t border-white/5">
-                <div>
-                    <h3 id="modal-titulo" class="text-3xl font-black italic mb-1 uppercase tracking-tighter text-white"></h3>
-                    <p id="modal-info" class="text-gray-500 text-xs font-black uppercase tracking-widest"></p>
-                </div>
-                <button onclick="fecharModal()" class="bg-red-600 text-white px-10 py-3 rounded-sm font-black hover:bg-red-700 transition uppercase tracking-widest text-sm">X Fechar</button>
+            <div id="content-area" class="aspect-video bg-black flex items-center justify-center"></div>
+            <div class="p-8 flex justify-between items-center">
+                <h3 id="modal-titulo" class="text-3xl font-black italic uppercase text-white"></h3>
+                <button onclick="fecharModal()" class="bg-white text-black px-8 py-3 rounded-full font-black hover:bg-gray-200 transition">FECHAR</button>
             </div>
         </div>
     </div>
@@ -127,6 +115,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // --- AUTH LOGIC ---
         window.toggleAuth = (tipo) => {
             document.getElementById('login-form').classList.toggle('hidden', tipo === 'signup');
             document.getElementById('signup-form').classList.toggle('hidden', tipo === 'login');
@@ -135,25 +124,23 @@
 
         window.esqueciSenha = () => {
             const email = document.getElementById('login-email').value;
-            if(!email) return alert("Digite o e-mail no campo de login primeiro.");
-            sendPasswordResetEmail(auth, email).then(() => alert("E-mail enviado!")).catch(() => alert("E-mail não encontrado."));
+            if(!email) return alert("Digite o e-mail no campo acima.");
+            sendPasswordResetEmail(auth, email).then(() => alert("E-mail de recuperação enviado!")).catch(() => alert("E-mail não encontrado."));
         };
 
         window.fazerCadastro = async () => {
             const nome = document.getElementById('signup-nome').value;
             const email = document.getElementById('signup-email').value;
             const senha = document.getElementById('signup-password').value;
-            if (senha.length < 6) return alert("A senha precisa de 6 dígitos.");
+            if (senha.length < 6) return alert("A senha deve ter no mínimo 6 caracteres.");
 
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, senha);
-                await setDoc(doc(db, "usuarios", res.user.uid), { 
-                    nome, email, status: "pendente", criadoEm: new Date() 
-                });
+                await setDoc(doc(db, "usuarios", res.user.uid), { nome, email, status: "pendente", criadoEm: new Date() });
                 alert("Solicitação enviada! Aguarde aprovação de Gustavo Nogueira.");
                 signOut(auth);
                 location.reload();
-            } catch (err) { alert("Erro ao criar cadastro. E-mail já em uso ou inválido."); }
+            } catch (err) { alert("Erro ao cadastrar. Verifique se o e-mail já está em uso."); }
         };
 
         window.fazerLogin = () => {
@@ -164,10 +151,10 @@
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
                     location.reload();
                 } else {
-                    alert("Seu acesso ainda está PENDENTE DE APROVAÇÃO.");
+                    alert("Acesso Pendente: Sua conta aguarda aprovação.");
                     signOut(auth);
                 }
-            }).catch(() => { document.getElementById('auth-msg').innerText = "E-mail ou senha inválidos."; });
+            }).catch(() => { document.getElementById('auth-msg').innerText = "Dados inválidos."; });
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
@@ -184,19 +171,20 @@
             }
         });
 
+        // --- PORTAL RENDER ---
         async function carregarPortal() {
             const q = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
             const snapshot = await getDocs(q);
             const dados = [];
             snapshot.forEach(doc => {
                 const d = doc.data();
-                if(d.videoId || d.pdf) dados.push(d); // Blindagem: só carrega se tiver dado útil
+                if(d.videoId || d.pdf) dados.push(d);
             });
 
             const categorias = {
-                "Recentemente Adicionados": dados.slice(0, 6),
-                "Capacitações em Vídeo": dados.filter(i => i.videoId),
-                "Manuais e Arquivos (PDF)": dados.filter(i => !i.videoId && i.pdf),
+                "Recentes na Unidade": dados.slice(0, 6),
+                "Vídeos de Treinamento": dados.filter(i => i.videoId && i.videoId !== "null"),
+                "Documentos e Manuais (PDF)": dados.filter(i => !i.videoId && i.pdf),
                 "Saúde Bucal": dados.filter(i => i.cat === "Saúde Bucal" || i.cat === "ODONTO")
             };
 
@@ -207,21 +195,11 @@
                 if (itens.length === 0) continue;
                 const row = document.createElement('div');
                 row.className = 'row-container';
-                row.innerHTML = `
-                    <h2 class="row-header"><i class="fas fa-play text-[10px]"></i> ${nome}</h2>
-                    <div class="scroller">
-                        ${itens.map(item => {
-                            const itemJson = JSON.stringify(item).replace(/'/g, "&apos;");
-                            return `
-                                <div class="netflix-card" onclick='abrirItem(${itemJson})'>
-                                    ${item.videoId ? `<img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">` : `<div class="doc-thumb"><i class="fas fa-file-pdf text-5xl text-red-600 mb-2"></i><span class="text-[9px] font-black uppercase text-gray-500">Documento</span></div>`}
-                                    <div class="card-info">
-                                        <p class="font-black truncate text-[10px] uppercase italic">${item.titulo}</p>
-                                        <p class="text-[8px] text-gray-400 mt-1 uppercase">${item.duracao || 0} min • ${item.cat}</p>
-                                    </div>
-                                </div>`;
-                        }).join('')}
-                    </div>`;
+                row.innerHTML = `<h2 class="row-header"><i class="fas fa-play text-[10px]"></i> ${nome}</h2><div class="scroller">${itens.map(item => `
+                    <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                        ${item.videoId ? `<img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">` : `<div class="doc-thumb"><i class="fas fa-file-pdf text-5xl text-red-600 mb-2"></i><span class="text-[9px] font-black uppercase text-gray-500">Arquivo</span></div>`}
+                        <div class="card-info"><p class="font-black truncate text-[10px] uppercase italic">${item.titulo}</p><p class="text-[8px] text-gray-400 mt-1 uppercase">${item.duracao || 0} min • ${item.cat}</p></div>
+                    </div>`).join('')}</div>`;
                 container.appendChild(row);
             }
         }
@@ -229,12 +207,10 @@
         window.abrirItem = (item) => {
             const area = document.getElementById('content-area');
             document.getElementById('modal-titulo').innerText = item.titulo;
-            document.getElementById('modal-info').innerText = `${item.cat} • ${item.duracao || 0} MINUTOS`;
-            
             if(item.videoId && item.videoId !== "null") {
                 area.innerHTML = `<lite-youtube videoid="${item.videoId}" params="autoplay=1&rel=0&modestbranding=1"></lite-youtube>`;
             } else {
-                area.innerHTML = `<div class="text-center"><i class="fas fa-file-pdf text-red-600 text-8xl mb-8 shadow-2xl"></i><br><a href="${item.pdf}" target="_blank" class="bg-red-600 px-16 py-5 rounded-sm font-black text-xl hover:bg-red-700 transition shadow-2xl uppercase tracking-tighter">Abrir Original (Google Drive)</a></div>`;
+                area.innerHTML = `<div class="text-center"><i class="fas fa-file-pdf text-red-600 text-8xl mb-8"></i><br><a href="${item.pdf}" target="_blank" class="bg-red-600 px-16 py-5 rounded-sm font-black text-xl hover:bg-red-700 transition shadow-2xl uppercase tracking-tighter">Abrir no Drive</a></div>`;
             }
             document.getElementById('item-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -245,12 +221,6 @@
             document.getElementById('content-area').innerHTML = "";
             document.body.style.overflow = 'auto';
         };
-
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) nav.style.backgroundColor = '#141414';
-            else nav.style.backgroundColor = 'transparent';
-        });
     </script>
 </body>
 </html>
