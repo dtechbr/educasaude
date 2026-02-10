@@ -3,55 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EducaSaúde | USF Vila Dutra</title>
+    <title>EducaSaúde | Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
-        .row-container { padding: 0 4% 20px 4%; }
-        .row-header { font-size: 1.4vw; color: #e5e5e5; font-weight: 700; margin-bottom: 0.5em; display: flex; align-items: center; }
-        .row-header i { margin-right: 10px; color: #E50914; }
-        
-        .netflix-card { 
-            position: relative; 
-            min-width: 250px; 
-            height: 140px; 
-            background: #2f2f2f; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .netflix-card:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
-        .card-info { 
-            position: absolute; bottom: 0; left: 0; right: 0; 
-            background: linear-gradient(transparent, rgba(0,0,0,0.9)); 
-            padding: 10px; font-size: 12px; opacity: 0; transition: 0.2s;
-        }
-        .netflix-card:hover .card-info { opacity: 1; }
-        
-        .doc-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1f1f1f; }
-        .scroller { display: flex; overflow-x: auto; gap: 10px; scroll-behavior: smooth; padding: 10px 0; }
-        .scroller::-webkit-scrollbar { display: none; }
-        .hidden { display: none !important; }
-
+        body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .netflix-input:focus { border-bottom: 2px solid #E50914 !important; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
     <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4">
         <div class="bg-[#181818]/90 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
-            <h1 class="text-red-600 font-black text-4xl mb-6 text-center italic tracking-tighter uppercase">EDUCA<span class="text-white">SAÚDE</span></h1>
+            <h1 class="text-red-600 font-black text-4xl mb-6 text-center italic uppercase tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
             
             <div id="login-form">
-                <h2 class="text-white font-bold mb-4">Entrar</h2>
                 <div class="space-y-4">
-                    <input type="email" id="login-email" placeholder="Seu e-mail" class="netflix-input">
-                    <input type="password" id="login-password" placeholder="Sua senha" class="netflix-input">
+                    <input type="email" id="login-email" placeholder="E-mail" class="netflix-input">
+                    <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
                     <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition">ENTRAR</button>
                     <div class="flex justify-between text-[10px] text-gray-500 font-bold mt-4 uppercase">
                         <button onclick="toggleAuth('signup')" class="hover:text-white">Solicitar Acesso</button>
@@ -62,61 +31,22 @@
 
             <div id="signup-form" class="hidden">
                 <h2 class="text-white font-bold mb-4">Solicitar Cadastro</h2>
-                <p class="text-[9px] text-gray-500 mb-4 uppercase leading-relaxed">Sua conta será criada, mas o acesso aos vídeos depende da aprovação do Coordenador Gustavo.</p>
                 <div class="space-y-4">
                     <input type="text" id="signup-nome" placeholder="Nome Completo" class="netflix-input">
-                    <input type="email" id="signup-email" placeholder="E-mail de Trabalho" class="netflix-input">
+                    <input type="email" id="signup-email" placeholder="E-mail Profissional" class="netflix-input">
                     <input type="password" id="signup-password" placeholder="Crie uma Senha" class="netflix-input">
-                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase tracking-widest">Enviar Solicitação</button>
+                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black uppercase">Enviar Solicitação</button>
                     <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-bold uppercase">Voltar ao Login</button>
                 </div>
             </div>
-            
             <p id="auth-msg" class="text-xs text-center mt-6 font-bold text-red-500"></p>
-        </div>
-    </div>
-
-    <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-gradient-to-b from-black to-transparent transition-all duration-500" id="navbar">
-            <h1 class="text-red-600 font-black text-2xl italic tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
-            <div class="flex items-center gap-6">
-                <div class="text-right">
-                    <p id="user-display-email" class="text-[10px] font-bold text-white"></p>
-                    <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase hover:underline">Sair</button>
-                </div>
-                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-xs font-bold">GN</div>
-            </div>
-        </nav>
-
-        <header class="relative h-[60vh] w-full flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
-            <div class="max-w-2xl">
-                <span class="bg-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block">VILA DUTRA | BAURU</span>
-                <h2 class="text-5xl font-black mb-4 uppercase italic">Educação Permanente</h2>
-                <p class="text-lg text-gray-300 font-medium leading-relaxed">Bem-vindo, Coordenador. Acesse aqui todos os protocolos, vídeos e arquivos integrados da unidade.</p>
-            </div>
-        </header>
-
-        <main id="categorias-container">
-            </main>
-    </div>
-
-    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl border border-white/10">
-            <div id="content-area" class="aspect-video bg-black flex items-center justify-center"></div>
-            <div class="p-8 flex justify-between items-center bg-[#181818]">
-                <div>
-                    <h3 id="modal-titulo" class="text-3xl font-bold italic mb-2"></h3>
-                    <p id="modal-info" class="text-gray-500 text-xs font-bold uppercase"></p>
-                </div>
-                <button onclick="fecharModal()" class="bg-white text-black px-8 py-3 rounded-full font-black hover:bg-gray-200 transition">FECHAR</button>
-            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCJjmcFTt1YnwIfd8gzCwI5DOmArLdryvw",
@@ -131,153 +61,44 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- NAVEGAÇÃO AUTH ---
         window.toggleAuth = (tipo) => {
             document.getElementById('login-form').classList.toggle('hidden', tipo === 'signup');
             document.getElementById('signup-form').classList.toggle('hidden', tipo === 'login');
-            document.getElementById('auth-msg').innerText = "";
         };
 
-        // --- ESQUECI SENHA ---
         window.esqueciSenha = () => {
             const email = document.getElementById('login-email').value;
-            if(!email) return alert("Por favor, digite seu e-mail para receber o link de redefinição.");
-            sendPasswordResetEmail(auth, email)
-                .then(() => alert("E-mail de redefinição enviado com sucesso!"))
-                .catch(() => alert("Erro: Verifique se o e-mail está correto."));
+            if(!email) return alert("Digite seu e-mail no campo acima.");
+            sendPasswordResetEmail(auth, email).then(() => alert("E-mail de recuperação enviado!")).catch(() => alert("Erro ao enviar e-mail."));
         };
 
-        // --- CADASTRO COM STATUS PENDENTE ---
         window.fazerCadastro = async () => {
-            const nome = document.getElementById('signup-nome').value;
             const email = document.getElementById('signup-email').value;
             const senha = document.getElementById('signup-password').value;
-
-            if(!nome || !email || !senha) return alert("Preencha todos os campos.");
+            const nome = document.getElementById('signup-nome').value;
 
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-                await setDoc(doc(db, "usuarios", userCredential.user.uid), {
-                    nome: nome,
-                    email: email,
-                    status: "pendente",
-                    dataSolicitacao: new Date()
-                });
-                alert("Solicitação enviada! Aguarde a aprovação do Coordenador para acessar o conteúdo.");
+                const res = await createUserWithEmailAndPassword(auth, email, senha);
+                await setDoc(doc(db, "usuarios", res.user.uid), { nome, email, status: "pendente" });
+                alert("Solicitação enviada! Aguarde aprovação.");
                 signOut(auth);
                 location.reload();
-            } catch (err) { alert("Erro ao criar conta. Verifique os dados."); }
+            } catch (err) { alert("Erro ao cadastrar."); }
         };
 
-        // --- LOGIN COM VERIFICAÇÃO DE APROVAÇÃO ---
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-password').value;
-            
             signInWithEmailAndPassword(auth, e, s).then(async (res) => {
                 const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-                
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
-                    // Logado e aprovado
+                    window.location.href = "portal.html"; // Mude para o nome do seu index principal
                 } else {
-                    alert("Acesso Negado: Sua conta ainda está pendente de aprovação pela coordenação da Vila Dutra.");
+                    alert("Acesso Pendente de Aprovação.");
                     signOut(auth);
                 }
-            }).catch(() => {
-                document.getElementById('auth-msg').innerText = "Credenciais inválidas ou conta inexistente.";
-            });
+            }).catch(() => alert("Login inválido."));
         };
-
-        window.fazerLogout = () => signOut(auth);
-
-        // --- MONITOR DE ESTADO DO USUÁRIO ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-                if(userDoc.exists() && userDoc.data().status === "aprovado") {
-                    document.getElementById('auth-container').classList.add('hidden');
-                    document.getElementById('main-content').classList.remove('hidden');
-                    document.getElementById('user-display-email').innerText = user.email;
-                    carregarPortal();
-                } else {
-                    signOut(auth);
-                }
-            } else {
-                document.getElementById('auth-container').classList.remove('hidden');
-                document.getElementById('main-content').classList.add('hidden');
-            }
-        });
-
-        // --- RENDERIZAÇÃO ESTILO NETFLIX ---
-        async function carregarPortal() {
-            const q = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
-            const snapshot = await getDocs(q);
-            const dados = [];
-            snapshot.forEach(doc => dados.push({id: doc.id, ...doc.data()}));
-
-            const categorias = {
-                "Recentemente Adicionados": dados.slice(0, 6),
-                "Capacitações em Vídeo": dados.filter(i => i.videoId),
-                "Biblioteca de Arquivos (PDF)": dados.filter(i => !i.videoId && i.pdf),
-                "Saúde da Família": dados.filter(i => i.cat === "ESF" || i.cat === "Saúde da Família"),
-                "Saúde Bucal": dados.filter(i => i.cat === "ODONTO" || i.cat === "Saúde Bucal")
-            };
-
-            const container = document.getElementById('categorias-container');
-            container.innerHTML = '';
-
-            for (const [nome, itens] of Object.entries(categorias)) {
-                if (itens.length === 0) continue;
-                const row = document.createElement('div');
-                row.className = 'row-container';
-                row.innerHTML = `
-                    <h2 class="row-header"><i class="fas fa-chevron-right text-[10px]"></i> ${nome}</h2>
-                    <div class="scroller">
-                        ${itens.map(item => `
-                            <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                                ${item.videoId ? `<img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">` : `<div class="doc-thumb"><i class="fas fa-file-pdf text-4xl text-red-600"></i></div>`}
-                                <div class="card-info">
-                                    <p class="font-bold truncate text-[10px] uppercase">${item.titulo}</p>
-                                    <p class="text-[8px] text-gray-400 mt-1">${item.duracao || 0} min • ${item.cat}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                container.appendChild(row);
-            }
-        }
-
-        window.abrirItem = (item) => {
-            const area = document.getElementById('content-area');
-            document.getElementById('modal-titulo').innerText = item.titulo;
-            document.getElementById('modal-info').innerText = `${item.cat} • ${item.duracao || 0} MINUTOS`;
-            
-            if(item.videoId) {
-                area.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            } else {
-                area.innerHTML = `
-                    <div class="text-center">
-                        <i class="fas fa-file-pdf text-red-600 text-8xl mb-6"></i><br>
-                        <a href="${item.pdf}" target="_blank" class="bg-red-600 px-12 py-4 rounded font-black text-xl hover:bg-red-700 transition shadow-xl uppercase tracking-tighter">Visualizar Arquivo PDF</a>
-                    </div>`;
-            }
-            document.getElementById('item-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.fecharModal = () => {
-            document.getElementById('item-modal').classList.add('hidden');
-            document.getElementById('content-area').innerHTML = "";
-            document.body.style.overflow = 'auto';
-        };
-
-        // Efeito Navbar
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) nav.style.backgroundColor = '#141414';
-            else nav.style.backgroundColor = 'transparent';
-        });
     </script>
 </body>
 </html>
