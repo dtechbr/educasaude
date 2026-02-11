@@ -6,7 +6,6 @@
     <title>EducaSaúde ESF | SORRI-BAURU</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.css" />
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
         .row-container { padding: 0 4% 30px 4%; }
@@ -19,18 +18,18 @@
             border-radius: 6px; cursor: pointer; transition: 0.3s; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .netflix-card:hover { transform: scale(1.08); z-index: 10; border-color: #E50914; }
+        .netflix-card:hover { transform: scale(1.05); z-index: 10; border-color: #E50914; }
         .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
         
+        .progress-bar-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: #555; }
+        .progress-bar-fill { height: 100%; background: #E50914; }
+
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .netflix-input:focus { border-bottom: 2px solid #E50914 !important; }
         
         .pass-wrapper { position: relative; width: 100%; }
         .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10; }
-        
         .hidden { display: none !important; }
-        
-        /* Ajuste para o texto da descrição no modal */
         .desc-text { color: #d1d5db; line-height: 1.6; font-size: 1rem; }
     </style>
 </head>
@@ -88,7 +87,8 @@
 
     <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
         <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl">
-            <div id="content-area" class="aspect-video bg-black flex items-center justify-center"></div>
+            <div id="content-area" class="aspect-video bg-black flex items-center justify-center">
+                </div>
             <div class="p-8 bg-zinc-900 border-t border-white/5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
@@ -102,7 +102,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
@@ -121,7 +121,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Funções de Senha e UI
+        let player;
+        let videoAtualId = null;
+        let usuarioLogado = null;
+
+        // Funções Globais para o HTML
         window.togglePass = (id, el) => {
             const input = document.getElementById(id);
             if (input.type === "password") {
@@ -139,34 +143,21 @@
             document.getElementById('auth-msg').innerText = "";
         };
 
-        // CADASTRO COM CAMPO UNIDADE
         window.fazerCadastro = async () => {
             const nome = document.getElementById('signup-nome').value;
             const unidade = document.getElementById('signup-unidade').value;
             const email = document.getElementById('signup-email').value;
             const senha = document.getElementById('signup-password').value;
             const msg = document.getElementById('auth-msg');
-
-            if (!nome || !unidade || !email || senha.length < 6) return alert("Preencha todos os campos corretamente.");
-
+            if (!nome || !unidade || !email || senha.length < 6) return alert("Preencha todos os campos.");
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, senha);
-                await setDoc(doc(db, "usuarios", res.user.uid), { 
-                    nome, unidade, email, status: "pendente", criadoEm: new Date() 
-                });
+                await setDoc(doc(db, "usuarios", res.user.uid), { nome, unidade, email, status: "pendente", criadoEm: new Date() });
                 await signOut(auth);
-
-                msg.innerText = "SOLICITAÇÃO ENVIADA COM SUCESSO!";
+                msg.innerText = "SOLICITAÇÃO ENVIADA!";
                 msg.style.color = "#10b981";
-
-                setTimeout(() => {
-                    toggleAuth('login');
-                    document.querySelectorAll('#signup-form input').forEach(i => i.value = "");
-                }, 3000);
-            } catch (err) {
-                msg.innerText = "ERRO AO CADASTRAR.";
-                msg.style.color = "#ef4444";
-            }
+                setTimeout(() => toggleAuth('login'), 3000);
+            } catch (err) { msg.innerText = "ERRO AO CADASTRAR."; msg.style.color = "#ef4444"; }
         };
 
         window.fazerLogin = () => {
@@ -175,73 +166,121 @@
             const msg = document.getElementById('auth-msg');
             signInWithEmailAndPassword(auth, e, s).then(async (res) => {
                 const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-                if(userDoc.exists() && userDoc.data().status === "aprovado") {
-                    location.reload();
-                } else {
-                    msg.innerText = "ACESSO PENDENTE DE APROVAÇÃO.";
-                    msg.style.color = "#f59e0b";
-                    signOut(auth);
-                }
+                if(userDoc.exists() && userDoc.data().status === "aprovado") { location.reload(); }
+                else { msg.innerText = "ACESSO PENDENTE."; signOut(auth); }
             }).catch(() => { msg.innerText = "DADOS INVÁLIDOS."; msg.style.color = "#ef4444"; });
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
 
+        // Controle de Progresso
+        async function salvarProgresso(videoId, tempo) {
+            if (!usuarioLogado || !videoId || isNaN(tempo)) return;
+            const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", videoId);
+            await setDoc(ref, { videoId, tempo: Math.floor(tempo), atualizadoEm: new Date() });
+        }
+
+        async function carregarPortal() {
+            // 1. Pega todas as aulas
+            const qAulas = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
+            const snapAulas = await getDocs(qAulas);
+            const todasAulas = [];
+            snapAulas.forEach(doc => todasAulas.push({ id: doc.id, ...doc.data() }));
+
+            // 2. Pega o progresso do usuário
+            const qProg = query(collection(db, "usuarios", usuarioLogado.uid, "progresso"), orderBy("atualizadoEm", "desc"));
+            const snapProg = await getDocs(qProg);
+            const progressoMap = {};
+            snapProg.forEach(doc => progressoMap[doc.data().videoId] = doc.data().tempo);
+
+            const container = document.getElementById('categorias-container');
+            container.innerHTML = '';
+
+            // 3. Fileira "Continuar Assistindo"
+            const aulasIncompletas = todasAulas.filter(aula => progressoMap[aula.videoId] > 5); // mais de 5 seg
+            if (aulasIncompletas.length > 0) {
+                renderizarLinha("Continuar Assistindo", aulasIncompletas, container, true);
+            }
+
+            // 4. Fileiras por Categoria
+            const categorias = [...new Set(todasAulas.map(i => i.cat))];
+            categorias.forEach(cat => {
+                const itens = todasAulas.filter(i => i.cat === cat);
+                renderizarLinha(cat, itens, container, false);
+            });
+        }
+
+        function renderizarLinha(titulo, itens, container, isHistory) {
+            const section = document.createElement('div');
+            section.className = 'row-container';
+            section.innerHTML = `
+                <h2 class="row-header"><i class="fas ${isHistory ? 'fa-history' : 'fa-play'} text-red-600 mr-2 text-[10px]"></i> ${titulo}</h2>
+                <div class="scroller">
+                    ${itens.map(item => `
+                        <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                            <img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">
+                            <div class="absolute bottom-0 p-3 bg-black/60 w-full">
+                                <p class="font-black truncate text-[10px] uppercase italic text-white">${item.titulo}</p>
+                                ${isHistory ? '<div class="progress-bar-container"><div class="progress-bar-fill" style="width:70%"></div></div>' : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
+            container.appendChild(section);
+        }
+
+        window.abrirItem = async (item) => {
+            videoAtualId = item.videoId;
+            document.getElementById('modal-titulo').innerText = item.titulo;
+            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MIN`;
+            document.getElementById('modal-descricao').innerText = item.descricao || "";
+            document.getElementById('item-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            const area = document.getElementById('content-area');
+            if(item.videoId) {
+                // Checa se tem tempo salvo
+                const snap = await getDoc(doc(db, "usuarios", usuarioLogado.uid, "progresso", item.videoId));
+                const startSec = snap.exists() ? snap.data().tempo : 0;
+
+                area.innerHTML = `<div id="yt-player-frame" class="w-full h-full"></div>`;
+                player = new YT.Player('yt-player-frame', {
+                    videoId: item.videoId,
+                    playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0 },
+                    events: {
+                        'onStateChange': (event) => {
+                            if (event.data === YT.PlayerState.PAUSED) {
+                                salvarProgresso(videoAtualId, player.getCurrentTime());
+                            }
+                        }
+                    }
+                });
+            } else {
+                area.innerHTML = `<a href="${item.pdf}" target="_blank" class="bg-red-600 px-8 py-3 rounded font-black uppercase">Abrir PDF</a>`;
+            }
+        };
+
+        window.fecharModal = () => {
+            if (player && player.getCurrentTime) {
+                salvarProgresso(videoAtualId, player.getCurrentTime());
+                player.destroy();
+            }
+            document.getElementById('item-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            carregarPortal(); // Atualiza a home
+        };
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
+                    usuarioLogado = user;
                     document.getElementById('auth-container').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
                     carregarPortal();
                 } else { signOut(auth); }
             }
         });
-
-        async function carregarPortal() {
-            const q = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
-            const snapshot = await getDocs(q);
-            const dados = [];
-            snapshot.forEach(doc => dados.push(doc.data()));
-
-            const categorias = [...new Set(dados.map(i => i.cat))];
-            const container = document.getElementById('categorias-container');
-            container.innerHTML = '';
-
-            categorias.forEach(cat => {
-                const itens = dados.filter(i => i.cat === cat);
-                const row = document.createElement('div');
-                row.className = 'row-container';
-                row.innerHTML = `<h2 class="row-header"><i class="fas fa-play text-red-600 mr-2 text-[10px]"></i> ${cat}</h2><div class="scroller">${itens.map(item => `
-                    <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                        <img src="${item.videoId ? `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg` : 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?q=80&w=300'}">
-                        <div class="absolute bottom-0 p-3 bg-black/60 w-full"><p class="font-black truncate text-[10px] uppercase italic text-white">${item.titulo}</p></div>
-                    </div>`).join('')}</div>`;
-                container.appendChild(row);
-            });
-        }
-
-        window.abrirItem = (item) => {
-            const area = document.getElementById('content-area');
-            document.getElementById('modal-titulo').innerText = item.titulo;
-            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MINUTOS`;
-            document.getElementById('modal-descricao').innerText = item.descricao || "Sem descrição disponível.";
-            
-            if(item.videoId) {
-                area.innerHTML = `<lite-youtube videoid="${item.videoId}" style="width:100%; height:100%; max-width:100%"></lite-youtube>`;
-            } else {
-                area.innerHTML = `<div class="text-center"><i class="fas fa-file-pdf text-red-600 text-8xl mb-4"></i><br><a href="${item.pdf}" target="_blank" class="bg-red-600 px-10 py-3 rounded font-black uppercase text-white">Abrir Documento Técnico</a></div>`;
-            }
-
-            document.getElementById('item-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.fecharModal = () => {
-            document.getElementById('item-modal').classList.add('hidden');
-            document.getElementById('content-area').innerHTML = "";
-            document.body.style.overflow = 'auto';
-        };
     </script>
 </body>
 </html>
