@@ -8,116 +8,95 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
-        
-        /* Layout das Fileiras */
         .row-container { padding: 0 4% 30px 4%; }
-        .row-header { font-size: 1.4rem; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; letter-spacing: 1px; }
+        .row-header { font-size: 1.4rem; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; }
         .scroller { display: flex; overflow-x: auto; gap: 20px; scroll-behavior: smooth; padding: 20px 0; scrollbar-width: none; }
         .scroller::-webkit-scrollbar { display: none; }
         
-        /* Cards Estilo Cinema (16:9) */
         .netflix-card { 
-            position: relative; 
-            min-width: 280px; 
-            aspect-ratio: 16 / 9;
-            background: #2f2f2f; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
+            position: relative; min-width: 280px; aspect-ratio: 16 / 9; background: #2f2f2f; 
+            border-radius: 8px; cursor: pointer; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
         }
         .netflix-card:hover { transform: scale(1.08); z-index: 20; border-color: #E50914; }
         .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Barra de Progresso no Card */
         .progress-bar-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(0,0,0,0.5); }
-        .progress-bar-fill { height: 100%; background: #E50914; width: 0%; transition: width 0.3s; }
+        .progress-bar-fill { height: 100%; background: #E50914; transition: width 0.3s; }
 
-        /* Inputs e UI */
-        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; transition: 0.3s; }
-        .netflix-input:focus { background: #444 !important; border-bottom: 3px solid #E50914 !important; }
-        .pass-wrapper { position: relative; width: 100%; }
-        .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10; }
-        
+        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .hidden { display: none !important; }
-
-        /* Ajuste do Player de Vídeo */
-        #content-area { background: #000; width: 100%; border-radius: 12px 12px 0 0; }
-        #yt-player-frame { width: 100%; height: 100%; border: none; }
-
-        /* Gradientes para Leitura */
-        .card-overlay { position: absolute; bottom: 0; width: 100%; padding: 20px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+        
+        /* Estilo Comentários */
+        .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #E50914; }
+        .comment-input { background: #333; color: white; border-radius: 4px; padding: 12px; width: 100%; border: 1px solid #444; }
     </style>
 </head>
 <body>
 
     <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069'); background-size: cover;">
         <div class="bg-black/85 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl backdrop-blur-sm">
-            <h1 class="text-red-600 font-black text-4xl mb-8 text-center italic tracking-tighter uppercase">EDUCA<span class="text-white">SAÚDE</span></h1>
-            <p id="auth-msg" class="text-xs text-center mb-4 font-bold min-h-[1.5rem] uppercase italic"></p>
-
-            <div id="login-form">
-                <div class="space-y-4">
-                    <input type="email" id="login-email" placeholder="E-mail" class="netflix-input">
-                    <div class="pass-wrapper">
-                        <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
-                        <i class="fas fa-eye eye-icon" onclick="togglePass('login-password', this)"></i>
-                    </div>
-                    <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition uppercase tracking-widest text-white">Entrar</button>
-                    <button onclick="toggleAuth('signup')" class="w-full text-[10px] text-gray-500 mt-4 hover:text-white font-black uppercase italic text-center">Solicitar Acesso (ESF Bauru)</button>
-                </div>
-            </div>
-
-            <div id="signup-form" class="hidden">
-                <div class="space-y-4">
-                    <input type="text" id="signup-nome" placeholder="Nome Completo" class="netflix-input">
-                    <input type="text" id="signup-unidade" placeholder="Sua Unidade (ex: Vila Dutra)" class="netflix-input">
-                    <input type="email" id="signup-email" placeholder="E-mail de Trabalho" class="netflix-input">
-                    <div class="pass-wrapper">
-                        <input type="password" id="signup-password" placeholder="Criar Senha (mín. 6)" class="netflix-input">
-                        <i class="fas fa-eye eye-icon" onclick="togglePass('signup-password', this)"></i>
-                    </div>
-                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase text-white">Enviar Solicitação</button>
-                    <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-black uppercase text-center">Já tenho conta</button>
-                </div>
+            <h1 class="text-red-600 font-black text-4xl mb-8 text-center uppercase italic">EDUCA<span class="text-white">SAÚDE</span></h1>
+            <div id="login-form" class="space-y-4">
+                <input type="email" id="login-email" placeholder="E-mail" class="netflix-input">
+                <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
+                <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black uppercase text-white hover:bg-red-700 transition">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/5">
-            <h1 class="text-red-600 font-black text-2xl italic uppercase tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
-            <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic border border-red-600 px-4 py-2 rounded hover:bg-red-600 hover:text-white transition">Sair</button>
+        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/90 backdrop-blur-md border-b border-white/5">
+            <h1 class="text-red-600 font-black text-2xl uppercase italic">EDUCA<span class="text-white">SAÚDE</span></h1>
+            <div class="flex items-center gap-6">
+                <span id="user-display-name" class="text-zinc-400 font-bold text-xs uppercase tracking-widest border-r border-white/20 pr-6"></span>
+                <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase border border-red-600 px-4 py-2 rounded hover:bg-red-600 hover:text-white transition">Sair</button>
+            </div>
         </nav>
 
-        <header class="h-[70vh] flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
+        <header class="h-[65vh] flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
             <div class="max-w-3xl">
                 <span class="bg-red-600 text-[10px] font-black px-3 py-1 rounded mb-4 inline-block uppercase tracking-widest">SORRI-BAURU | SMS</span>
-                <h2 class="text-7xl font-black uppercase italic tracking-tighter leading-tight mb-4">Educação <br>Permanente ESF</h2>
-                <p class="text-zinc-300 font-bold text-xl max-w-xl">Protocolos técnicos e capacitação continuada para as equipes de Saúde da Família.</p>
+                <h2 class="text-6xl font-black uppercase italic tracking-tighter mb-4">Educação Permanente</h2>
+                <p class="text-zinc-300 font-bold text-lg">Capacitação técnica para as equipes de Saúde da Família.</p>
             </div>
         </header>
 
         <section id="categorias-container"></section>
     </div>
 
-    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="w-full max-w-4xl bg-[#181818] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-            <div id="content-area" class="aspect-video">
-                </div>
+    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="w-full max-w-5xl bg-[#181818] rounded-2xl overflow-y-auto max-h-[95vh] shadow-2xl border border-white/10">
+            <div id="content-area" class="aspect-video bg-black"></div>
+            
             <div class="p-8">
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-between items-start mb-6">
                     <div>
                         <h3 id="modal-titulo" class="text-3xl font-bold text-white tracking-tight"></h3>
-                        <p id="modal-meta" class="text-red-600 text-xs font-black uppercase mt-2 tracking-widest"></p>
+                        <div class="flex items-center gap-6 mt-4">
+                            <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-2 transition-all duration-300">
+                                <i class="fas fa-heart text-2xl"></i>
+                                <span id="count-curtidas" class="font-bold text-sm">0</span>
+                            </button>
+                            <span id="modal-meta" class="text-red-600 text-xs font-black uppercase tracking-widest"></span>
+                        </div>
                     </div>
-                    <button onclick="fecharModal()" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition">
-                        <i class="fas fa-times px-1"></i>
-                    </button>
+                    <button onclick="fecharModal()" class="text-zinc-500 hover:text-white transition"><i class="fas fa-times text-2xl"></i></button>
                 </div>
-                <div id="modal-descricao" class="text-zinc-400 leading-relaxed italic text-sm border-l-2 border-red-600 pl-4"></div>
+                
+                <div id="modal-descricao" class="text-zinc-400 italic mb-8 border-l-2 border-red-600 pl-4 text-sm leading-relaxed"></div>
+
+                <div class="border-t border-white/10 pt-8">
+                    <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest flex items-center gap-2">
+                        <i class="fas fa-comments text-red-600"></i> Comentários da Equipe
+                    </h4>
+                    <div id="lista-comentarios" class="space-y-4 max-h-64 overflow-y-auto pr-4 mb-6"></div>
+                    
+                    <div class="flex flex-col gap-3">
+                        <textarea id="novo-comentario" rows="2" placeholder="Sua dúvida ou contribuição técnica..." class="comment-input"></textarea>
+                        <button onclick="postarComentario()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded font-black uppercase text-xs self-end text-white transition">Enviar Comentário</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -125,8 +104,8 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, orderBy, deleteDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCJjmcFTt1YnwIfd8gzCwI5DOmArLdryvw",
@@ -141,156 +120,133 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let player;
-        let videoAtualId = null;
-        let usuarioLogado = null;
+        let player, videoAtualId = null, aulaDocId = null, usuarioLogado = null, unsubComentarios = null;
 
-        // UI Helpers
-        window.togglePass = (id, el) => {
-            const input = document.getElementById(id);
-            input.type = input.type === "password" ? "text" : "password";
-            el.classList.toggle("fa-eye");
-            el.classList.toggle("fa-eye-slash");
-        };
-
-        window.toggleAuth = (tipo) => {
-            document.getElementById('login-form').classList.toggle('hidden', tipo === 'signup');
-            document.getElementById('signup-form').classList.toggle('hidden', tipo === 'login');
-        };
-
+        // Login e Sessão
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-password').value;
-            signInWithEmailAndPassword(auth, e, s).then(async (res) => {
-                const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-                if(userDoc.exists() && userDoc.data().status === "aprovado") location.reload();
-                else { alert("Acesso Pendente."); signOut(auth); }
-            }).catch(() => alert("Dados Inválidos."));
-        };
-
-        window.fazerCadastro = async () => {
-            const nome = document.getElementById('signup-nome').value;
-            const unidade = document.getElementById('signup-unidade').value;
-            const email = document.getElementById('signup-email').value;
-            const senha = document.getElementById('signup-password').value;
-            if(!nome || !unidade || !email || senha.length < 6) return alert("Preencha tudo corretamente.");
-            try {
-                const res = await createUserWithEmailAndPassword(auth, email, senha);
-                await setDoc(doc(db, "usuarios", res.user.uid), { nome, unidade, email, status: "pendente", criadoEm: new Date() });
-                await signOut(auth);
-                alert("Solicitação Enviada!");
-                location.reload();
-            } catch (err) { alert("Erro ao cadastrar."); }
+            signInWithEmailAndPassword(auth, e, s).catch(() => alert("Dados inválidos."));
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
-
-        // Lógica de Progresso (Firestore)
-        async function salvarProgresso(videoId, tempo) {
-            if (!usuarioLogado || !videoId || isNaN(tempo)) return;
-            try {
-                const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", videoId);
-                await setDoc(ref, { videoId, tempo: Math.floor(tempo), atualizadoEm: new Date() }, { merge: true });
-            } catch (e) { console.error("Erro Rules:", e); }
-        }
-
-        async function carregarPortal() {
-            const qAulas = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
-            const snapAulas = await getDocs(qAulas);
-            const todasAulas = [];
-            snapAulas.forEach(doc => todasAulas.push({ id: doc.id, ...doc.data() }));
-
-            const qProg = query(collection(db, "usuarios", usuarioLogado.uid, "progresso"), orderBy("atualizadoEm", "desc"));
-            const snapProg = await getDocs(qProg);
-            const progressoMap = {};
-            snapProg.forEach(doc => progressoMap[doc.data().videoId] = doc.data().tempo);
-
-            const container = document.getElementById('categorias-container');
-            container.innerHTML = '';
-
-            // Fileira Continuar Assistindo
-            const aulasIncompletas = todasAulas.filter(aula => progressoMap[aula.videoId] > 10);
-            if (aulasIncompletas.length > 0) {
-                renderizarLinha("Continuar Assistindo", aulasIncompletas, container, true, progressoMap);
-            }
-
-            const categorias = [...new Set(todasAulas.map(i => i.cat))];
-            categorias.forEach(cat => {
-                const itens = todasAulas.filter(i => i.cat === cat);
-                renderizarLinha(cat, itens, container, false, progressoMap);
-            });
-        }
-
-        function renderizarLinha(titulo, itens, container, isHistory, progMap) {
-            const section = document.createElement('div');
-            section.className = 'row-container';
-            section.innerHTML = `
-                <h2 class="row-header"><i class="fas ${isHistory ? 'fa-history' : 'fa-play'} text-red-600 mr-3 text-sm"></i> ${titulo}</h2>
-                <div class="scroller">
-                    ${itens.map(item => `
-                        <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                            <img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg" loading="lazy">
-                            <div class="card-overlay">
-                                <p class="font-bold truncate text-xs uppercase text-white">${item.titulo}</p>
-                                ${isHistory ? `<div class="progress-bar-container"><div class="progress-bar-fill" style="width:70%"></div></div>` : ''}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
-            container.appendChild(section);
-        }
-
-        window.abrirItem = async (item) => {
-            videoAtualId = item.videoId;
-            document.getElementById('modal-titulo').innerText = item.titulo;
-            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MINUTOS`;
-            document.getElementById('modal-descricao').innerText = item.descricao || "Sem descrição disponível.";
-            document.getElementById('item-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-
-            const area = document.getElementById('content-area');
-            if(item.videoId) {
-                const snap = await getDoc(doc(db, "usuarios", usuarioLogado.uid, "progresso", item.videoId));
-                const startSec = snap.exists() ? snap.data().tempo : 0;
-
-                area.innerHTML = `<div id="yt-player-frame"></div>`;
-                player = new YT.Player('yt-player-frame', {
-                    videoId: item.videoId,
-                    playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0, 'modestbranding': 1 },
-                    events: {
-                        'onStateChange': (event) => {
-                            if (event.data === YT.PlayerState.PAUSED) {
-                                salvarProgresso(videoAtualId, player.getCurrentTime());
-                            }
-                        }
-                    }
-                });
-            } else {
-                area.innerHTML = `<div class="flex h-full items-center justify-center"><a href="${item.pdf}" target="_blank" class="bg-red-600 px-10 py-4 rounded font-black uppercase text-white shadow-lg">Abrir Documento Técnico</a></div>`;
-            }
-        };
-
-        window.fecharModal = () => {
-            if (player && player.getCurrentTime) {
-                salvarProgresso(videoAtualId, player.getCurrentTime());
-                player.destroy();
-            }
-            document.getElementById('item-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            carregarPortal();
-        };
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
-                    usuarioLogado = user;
+                    usuarioLogado = { uid: user.uid, nome: userDoc.data().nome };
+                    document.getElementById('user-display-name').innerText = usuarioLogado.nome;
                     document.getElementById('auth-container').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
                     carregarPortal();
                 } else signOut(auth);
             }
         });
+
+        // Lógica de Continuar Assistindo
+        async function salvarProgresso(vId, t) {
+            if (!usuarioLogado || !vId || isNaN(t)) return;
+            const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", vId);
+            await setDoc(ref, { videoId: vId, tempo: Math.floor(t), atualizadoEm: new Date() }, { merge: true });
+        }
+
+        // Curtidas
+        window.toggleCurtida = async () => {
+            const ref = doc(db, "aulas", aulaDocId, "curtidas", usuarioLogado.uid);
+            const snap = await getDoc(ref);
+            if (snap.exists()) await deleteDoc(ref);
+            else await setDoc(ref, { data: new Date() });
+            atualizarContadorCurtidas();
+        };
+
+        async function atualizarContadorCurtidas() {
+            const snap = await getDocs(collection(db, "aulas", aulaDocId, "curtidas"));
+            const btn = document.getElementById('btn-curtir');
+            const userCurtiu = snap.docs.some(d => d.id === usuarioLogado.uid);
+            btn.className = userCurtiu ? "text-red-600 flex items-center gap-2" : "text-zinc-500 flex items-center gap-2";
+            document.getElementById('count-curtidas').innerText = snap.size;
+        }
+
+        // Comentários em Tempo Real
+        window.postarComentario = async () => {
+            const t = document.getElementById('novo-comentario').value;
+            if (!t.trim()) return;
+            await addDoc(collection(db, "aulas", aulaDocId, "comentarios"), { usuario: usuarioLogado.nome, texto: t, data: new Date() });
+            document.getElementById('novo-comentario').value = '';
+        };
+
+        function iniciarChat(id) {
+            if (unsubComentarios) unsubComentarios();
+            const q = query(collection(db, "aulas", id, "comentarios"), orderBy("data", "desc"));
+            unsubComentarios = onSnapshot(q, (snap) => {
+                const lista = document.getElementById('lista-comentarios');
+                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-[10px] text-red-600 font-black uppercase mb-1">${d.data().usuario}</p><p class="text-zinc-300 text-sm">${d.data().texto}</p></div>`).join('');
+            });
+        }
+
+        // Portal
+        async function carregarPortal() {
+            const snapAulas = await getDocs(query(collection(db, "aulas"), orderBy("criadoEm", "desc")));
+            const aulas = []; snapAulas.forEach(d => aulas.push({ id: d.id, ...d.data() }));
+
+            const snapProg = await getDocs(collection(db, "usuarios", usuarioLogado.uid, "progresso"));
+            const progMap = {}; snapProg.forEach(d => progMap[d.data().videoId] = d.data().tempo);
+
+            const container = document.getElementById('categorias-container');
+            container.innerHTML = '';
+
+            // Seção Continuar
+            const incompletas = aulas.filter(a => progMap[a.videoId] > 10);
+            if(incompletas.length > 0) renderizarLinha("Continuar Assistindo", incompletas, container, true);
+
+            const categorias = [...new Set(aulas.map(a => a.cat))];
+            categorias.forEach(c => renderizarLinha(c, aulas.filter(a => a.cat === c), container, false));
+        }
+
+        function renderizarLinha(tit, its, cont, hist) {
+            const div = document.createElement('div');
+            div.className = 'row-container';
+            div.innerHTML = `<h2 class="row-header"><i class="fas ${hist ? 'fa-history' : 'fa-play'} text-red-600 mr-3 text-sm"></i>${tit}</h2>
+                <div class="scroller">${its.map(i => `<div class="netflix-card" onclick='abrirItem(${JSON.stringify(i).replace(/'/g, "&apos;")})'>
+                    <img src="https://img.youtube.com/vi/${i.videoId}/mqdefault.jpg">
+                    <div class="absolute bottom-0 p-4 bg-gradient-to-t from-black to-transparent w-full">
+                        <p class="font-bold truncate text-[10px] uppercase">${i.titulo}</p>
+                        ${hist ? '<div class="progress-bar-container"><div class="progress-bar-fill" style="width:70%"></div></div>' : ''}
+                    </div>
+                </div>`).join('')}</div>`;
+            cont.appendChild(div);
+        }
+
+        window.abrirItem = async (item) => {
+            videoAtualId = item.videoId; aulaDocId = item.id;
+            document.getElementById('modal-titulo').innerText = item.titulo;
+            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MIN`;
+            document.getElementById('modal-descricao').innerText = item.descricao;
+            document.getElementById('item-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            atualizarContadorCurtidas();
+            iniciarChat(aulaDocId);
+
+            const snap = await getDoc(doc(db, "usuarios", usuarioLogado.uid, "progresso", item.videoId));
+            const startSec = snap.exists() ? snap.data().tempo : 0;
+
+            document.getElementById('content-area').innerHTML = `<div id="yt-player" class="w-full h-full"></div>`;
+            player = new YT.Player('yt-player', { 
+                videoId: item.videoId, 
+                playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0 },
+                events: { 'onStateChange': (e) => { if(e.data === 2) salvarProgresso(videoAtualId, player.getCurrentTime()); } }
+            });
+        };
+
+        window.fecharModal = () => {
+            if (player) { salvarProgresso(videoAtualId, player.getCurrentTime()); player.destroy(); }
+            document.getElementById('item-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            if (unsubComentarios) unsubComentarios();
+            carregarPortal();
+        };
     </script>
 </body>
 </html>
