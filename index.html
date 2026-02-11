@@ -149,32 +149,59 @@
         };
 
         window.fazerCadastro = async () => {
-            const nome = document.getElementById('signup-nome').value;
-            const email = document.getElementById('signup-email').value;
-            const senha = document.getElementById('signup-password').value;
-            const msg = document.getElementById('auth-msg');
+    const nome = document.getElementById('signup-nome').value;
+    const email = document.getElementById('signup-email').value;
+    const senha = document.getElementById('signup-password').value;
+    const msg = document.getElementById('auth-msg');
 
-            if (!nome || !email || senha.length < 6) return alert("Preencha todos os campos corretamente.");
+    // Validação básica
+    if (!nome || !email || senha.length < 6) {
+        msg.innerText = "Preencha todos os campos (Senha mín. 6 caracteres).";
+        msg.style.color = "#ef4444"; // Vermelho erro
+        return;
+    }
 
-            try {
-                const res = await createUserWithEmailAndPassword(auth, email, senha);
-                await setDoc(doc(db, "usuarios", res.user.uid), { nome, email, status: "pendente", criadoEm: new Date() });
-                
-                await signOut(auth);
-                
-                msg.innerText = "Solicitação enviada! Aguarde a aprovação de Gustavo Nogueira.";
-                msg.style.color = "#10b981"; // Verde sucesso
-                
-                setTimeout(() => {
-                    toggleAuth('login');
-                    document.querySelectorAll('#signup-form input').forEach(i => i.value = "");
-                }, 4000);
+    try {
+        // 1. Cria o usuário no Firebase Auth
+        const res = await createUserWithEmailAndPassword(auth, email, senha);
+        
+        // 2. Registra os dados complementares no Firestore com status pendente
+        await setDoc(doc(db, "usuarios", res.user.uid), { 
+            nome: nome, 
+            email: email, 
+            status: "pendente", 
+            criadoEm: new Date() 
+        });
 
-            } catch (err) { 
-                msg.innerText = "Erro ao cadastrar. E-mail já pode estar em uso.";
-                msg.style.color = "#ef4444"; 
-            }
-        };
+        // 3. Importante: Desloga o usuário imediatamente
+        // O Firebase loga automaticamente ao criar conta, mas o acesso deve ser bloqueado até sua aprovação
+        await signOut(auth);
+
+        // 4. Exibe a mensagem de sucesso solicitada
+        msg.innerText = "CADASTRO SOLICITADO COM SUCESSO! AGUARDE APROVAÇÃO.";
+        msg.style.color = "#10b981"; // Verde sucesso
+        msg.style.fontWeight = "900";
+
+        // 5. Redirecionamento automático para o Login após 3 segundos
+        setTimeout(() => {
+            // Volta para a tela de login
+            toggleAuth('login');
+            
+            // Limpa os campos do formulário de cadastro
+            document.getElementById('signup-nome').value = "";
+            document.getElementById('signup-email').value = "";
+            document.getElementById('signup-password').value = "";
+            
+            // Limpa a mensagem de sucesso para o próximo uso
+            msg.innerText = "";
+        }, 3000);
+
+    } catch (err) { 
+        console.error(err);
+        msg.innerText = "ERRO AO SOLICITAR: " + (err.code === 'auth/email-already-in-use' ? "E-mail já cadastrado." : "Tente novamente.");
+        msg.style.color = "#ef4444"; 
+    }
+};
 
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
@@ -254,3 +281,4 @@
     </script>
 </body>
 </html>
+
