@@ -8,35 +8,53 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        
+        /* Layout das Fileiras */
         .row-container { padding: 0 4% 30px 4%; }
-        .row-header { font-size: 1.4vw; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; }
-        .scroller { display: flex; overflow-x: auto; gap: 15px; scroll-behavior: smooth; padding: 15px 0; scrollbar-width: none; }
+        .row-header { font-size: 1.4rem; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; letter-spacing: 1px; }
+        .scroller { display: flex; overflow-x: auto; gap: 20px; scroll-behavior: smooth; padding: 20px 0; scrollbar-width: none; }
         .scroller::-webkit-scrollbar { display: none; }
         
+        /* Cards Estilo Cinema (16:9) */
         .netflix-card { 
-            position: relative; min-width: 280px; height: 160px; background: #2f2f2f; 
-            border-radius: 6px; cursor: pointer; transition: 0.3s; overflow: hidden;
+            position: relative; 
+            min-width: 280px; 
+            aspect-ratio: 16 / 9;
+            background: #2f2f2f; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .netflix-card:hover { transform: scale(1.05); z-index: 10; border-color: #E50914; }
+        .netflix-card:hover { transform: scale(1.08); z-index: 20; border-color: #E50914; }
         .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
         
-        .progress-bar-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: #555; }
-        .progress-bar-fill { height: 100%; background: #E50914; }
+        /* Barra de Progresso no Card */
+        .progress-bar-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(0,0,0,0.5); }
+        .progress-bar-fill { height: 100%; background: #E50914; width: 0%; transition: width 0.3s; }
 
-        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
-        .netflix-input:focus { border-bottom: 2px solid #E50914 !important; }
-        
+        /* Inputs e UI */
+        .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; transition: 0.3s; }
+        .netflix-input:focus { background: #444 !important; border-bottom: 3px solid #E50914 !important; }
         .pass-wrapper { position: relative; width: 100%; }
         .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10; }
+        
         .hidden { display: none !important; }
-        .desc-text { color: #d1d5db; line-height: 1.6; font-size: 1rem; }
+
+        /* Ajuste do Player de Vídeo */
+        #content-area { background: #000; width: 100%; border-radius: 12px 12px 0 0; }
+        #yt-player-frame { width: 100%; height: 100%; border: none; }
+
+        /* Gradientes para Leitura */
+        .card-overlay { position: absolute; bottom: 0; width: 100%; padding: 20px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
     </style>
 </head>
 <body>
 
-    <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40af-bca1-07e3f8eb1468/60dc9874-f25b-4394-a745-d36c57988358/BR-pt-20220502-popsignuptwoweeks-perspective_alpha_website_large.jpg'); background-size: cover;">
-        <div class="bg-black/85 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
+    <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069'); background-size: cover;">
+        <div class="bg-black/85 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl backdrop-blur-sm">
             <h1 class="text-red-600 font-black text-4xl mb-8 text-center italic tracking-tighter uppercase">EDUCA<span class="text-white">SAÚDE</span></h1>
             <p id="auth-msg" class="text-xs text-center mb-4 font-bold min-h-[1.5rem] uppercase italic"></p>
 
@@ -47,7 +65,7 @@
                         <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
                         <i class="fas fa-eye eye-icon" onclick="togglePass('login-password', this)"></i>
                     </div>
-                    <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition uppercase tracking-widest">Entrar</button>
+                    <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition uppercase tracking-widest text-white">Entrar</button>
                     <button onclick="toggleAuth('signup')" class="w-full text-[10px] text-gray-500 mt-4 hover:text-white font-black uppercase italic text-center">Solicitar Acesso (ESF Bauru)</button>
                 </div>
             </div>
@@ -61,7 +79,7 @@
                         <input type="password" id="signup-password" placeholder="Criar Senha (mín. 6)" class="netflix-input">
                         <i class="fas fa-eye eye-icon" onclick="togglePass('signup-password', this)"></i>
                     </div>
-                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase">Enviar Solicitação</button>
+                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase text-white">Enviar Solicitação</button>
                     <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-black uppercase text-center">Já tenho conta</button>
                 </div>
             </div>
@@ -69,35 +87,37 @@
     </div>
 
     <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80">
+        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80 backdrop-blur-md border-b border-white/5">
             <h1 class="text-red-600 font-black text-2xl italic uppercase tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
-            <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic border border-red-600 px-3 py-1 rounded hover:bg-red-600 hover:text-white transition">Sair</button>
+            <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic border border-red-600 px-4 py-2 rounded hover:bg-red-600 hover:text-white transition">Sair</button>
         </nav>
 
-        <header class="h-[60vh] flex items-end pb-16 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
+        <header class="h-[70vh] flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
             <div class="max-w-3xl">
-                <span class="bg-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block uppercase tracking-widest">Estratégia de Saúde da Família | Bauru</span>
-                <h2 class="text-6xl font-black uppercase italic tracking-tighter leading-none mb-4">Educação <br>Permanente ESF</h2>
-                <p class="text-zinc-300 font-bold text-lg">Plataforma unificada de protocolos e capacitação para as equipes de saúde SORRI-BAURU / SMS.</p>
+                <span class="bg-red-600 text-[10px] font-black px-3 py-1 rounded mb-4 inline-block uppercase tracking-widest">SORRI-BAURU | SMS</span>
+                <h2 class="text-7xl font-black uppercase italic tracking-tighter leading-tight mb-4">Educação <br>Permanente ESF</h2>
+                <p class="text-zinc-300 font-bold text-xl max-w-xl">Protocolos técnicos e capacitação continuada para as equipes de Saúde da Família.</p>
             </div>
         </header>
 
         <section id="categorias-container"></section>
     </div>
 
-    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl">
-            <div id="content-area" class="aspect-video bg-black flex items-center justify-center">
+    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="w-full max-w-4xl bg-[#181818] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+            <div id="content-area" class="aspect-video">
                 </div>
-            <div class="p-8 bg-zinc-900 border-t border-white/5">
+            <div class="p-8">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 id="modal-titulo" class="text-3xl font-black italic uppercase text-white tracking-tighter"></h3>
-                        <p id="modal-meta" class="text-red-600 text-xs font-black uppercase mt-1"></p>
+                        <h3 id="modal-titulo" class="text-3xl font-bold text-white tracking-tight"></h3>
+                        <p id="modal-meta" class="text-red-600 text-xs font-black uppercase mt-2 tracking-widest"></p>
                     </div>
-                    <button onclick="fecharModal()" class="bg-white text-black px-6 py-2 rounded-full font-black hover:bg-gray-300 transition uppercase text-xs">Fechar</button>
+                    <button onclick="fecharModal()" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition">
+                        <i class="fas fa-times px-1"></i>
+                    </button>
                 </div>
-                <div id="modal-descricao" class="desc-text italic"></div>
+                <div id="modal-descricao" class="text-zinc-400 leading-relaxed italic text-sm border-l-2 border-red-600 pl-4"></div>
             </div>
         </div>
     </div>
@@ -125,22 +145,27 @@
         let videoAtualId = null;
         let usuarioLogado = null;
 
-        // Funções Globais para o HTML
+        // UI Helpers
         window.togglePass = (id, el) => {
             const input = document.getElementById(id);
-            if (input.type === "password") {
-                input.type = "text";
-                el.classList.replace("fa-eye", "fa-eye-slash");
-            } else {
-                input.type = "password";
-                el.classList.replace("fa-eye-slash", "fa-eye");
-            }
+            input.type = input.type === "password" ? "text" : "password";
+            el.classList.toggle("fa-eye");
+            el.classList.toggle("fa-eye-slash");
         };
 
         window.toggleAuth = (tipo) => {
             document.getElementById('login-form').classList.toggle('hidden', tipo === 'signup');
             document.getElementById('signup-form').classList.toggle('hidden', tipo === 'login');
-            document.getElementById('auth-msg').innerText = "";
+        };
+
+        window.fazerLogin = () => {
+            const e = document.getElementById('login-email').value;
+            const s = document.getElementById('login-password').value;
+            signInWithEmailAndPassword(auth, e, s).then(async (res) => {
+                const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
+                if(userDoc.exists() && userDoc.data().status === "aprovado") location.reload();
+                else { alert("Acesso Pendente."); signOut(auth); }
+            }).catch(() => alert("Dados Inválidos."));
         };
 
         window.fazerCadastro = async () => {
@@ -148,46 +173,33 @@
             const unidade = document.getElementById('signup-unidade').value;
             const email = document.getElementById('signup-email').value;
             const senha = document.getElementById('signup-password').value;
-            const msg = document.getElementById('auth-msg');
-            if (!nome || !unidade || !email || senha.length < 6) return alert("Preencha todos os campos.");
+            if(!nome || !unidade || !email || senha.length < 6) return alert("Preencha tudo corretamente.");
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, senha);
                 await setDoc(doc(db, "usuarios", res.user.uid), { nome, unidade, email, status: "pendente", criadoEm: new Date() });
                 await signOut(auth);
-                msg.innerText = "SOLICITAÇÃO ENVIADA!";
-                msg.style.color = "#10b981";
-                setTimeout(() => toggleAuth('login'), 3000);
-            } catch (err) { msg.innerText = "ERRO AO CADASTRAR."; msg.style.color = "#ef4444"; }
-        };
-
-        window.fazerLogin = () => {
-            const e = document.getElementById('login-email').value;
-            const s = document.getElementById('login-password').value;
-            const msg = document.getElementById('auth-msg');
-            signInWithEmailAndPassword(auth, e, s).then(async (res) => {
-                const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-                if(userDoc.exists() && userDoc.data().status === "aprovado") { location.reload(); }
-                else { msg.innerText = "ACESSO PENDENTE."; signOut(auth); }
-            }).catch(() => { msg.innerText = "DADOS INVÁLIDOS."; msg.style.color = "#ef4444"; });
+                alert("Solicitação Enviada!");
+                location.reload();
+            } catch (err) { alert("Erro ao cadastrar."); }
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
 
-        // Controle de Progresso
+        // Lógica de Progresso (Firestore)
         async function salvarProgresso(videoId, tempo) {
             if (!usuarioLogado || !videoId || isNaN(tempo)) return;
-            const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", videoId);
-            await setDoc(ref, { videoId, tempo: Math.floor(tempo), atualizadoEm: new Date() });
+            try {
+                const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", videoId);
+                await setDoc(ref, { videoId, tempo: Math.floor(tempo), atualizadoEm: new Date() }, { merge: true });
+            } catch (e) { console.error("Erro Rules:", e); }
         }
 
         async function carregarPortal() {
-            // 1. Pega todas as aulas
             const qAulas = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
             const snapAulas = await getDocs(qAulas);
             const todasAulas = [];
             snapAulas.forEach(doc => todasAulas.push({ id: doc.id, ...doc.data() }));
 
-            // 2. Pega o progresso do usuário
             const qProg = query(collection(db, "usuarios", usuarioLogado.uid, "progresso"), orderBy("atualizadoEm", "desc"));
             const snapProg = await getDocs(qProg);
             const progressoMap = {};
@@ -196,32 +208,31 @@
             const container = document.getElementById('categorias-container');
             container.innerHTML = '';
 
-            // 3. Fileira "Continuar Assistindo"
-            const aulasIncompletas = todasAulas.filter(aula => progressoMap[aula.videoId] > 5); // mais de 5 seg
+            // Fileira Continuar Assistindo
+            const aulasIncompletas = todasAulas.filter(aula => progressoMap[aula.videoId] > 10);
             if (aulasIncompletas.length > 0) {
-                renderizarLinha("Continuar Assistindo", aulasIncompletas, container, true);
+                renderizarLinha("Continuar Assistindo", aulasIncompletas, container, true, progressoMap);
             }
 
-            // 4. Fileiras por Categoria
             const categorias = [...new Set(todasAulas.map(i => i.cat))];
             categorias.forEach(cat => {
                 const itens = todasAulas.filter(i => i.cat === cat);
-                renderizarLinha(cat, itens, container, false);
+                renderizarLinha(cat, itens, container, false, progressoMap);
             });
         }
 
-        function renderizarLinha(titulo, itens, container, isHistory) {
+        function renderizarLinha(titulo, itens, container, isHistory, progMap) {
             const section = document.createElement('div');
             section.className = 'row-container';
             section.innerHTML = `
-                <h2 class="row-header"><i class="fas ${isHistory ? 'fa-history' : 'fa-play'} text-red-600 mr-2 text-[10px]"></i> ${titulo}</h2>
+                <h2 class="row-header"><i class="fas ${isHistory ? 'fa-history' : 'fa-play'} text-red-600 mr-3 text-sm"></i> ${titulo}</h2>
                 <div class="scroller">
                     ${itens.map(item => `
                         <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                            <img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">
-                            <div class="absolute bottom-0 p-3 bg-black/60 w-full">
-                                <p class="font-black truncate text-[10px] uppercase italic text-white">${item.titulo}</p>
-                                ${isHistory ? '<div class="progress-bar-container"><div class="progress-bar-fill" style="width:70%"></div></div>' : ''}
+                            <img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg" loading="lazy">
+                            <div class="card-overlay">
+                                <p class="font-bold truncate text-xs uppercase text-white">${item.titulo}</p>
+                                ${isHistory ? `<div class="progress-bar-container"><div class="progress-bar-fill" style="width:70%"></div></div>` : ''}
                             </div>
                         </div>
                     `).join('')}
@@ -232,21 +243,20 @@
         window.abrirItem = async (item) => {
             videoAtualId = item.videoId;
             document.getElementById('modal-titulo').innerText = item.titulo;
-            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MIN`;
-            document.getElementById('modal-descricao').innerText = item.descricao || "";
+            document.getElementById('modal-meta').innerText = `${item.cat} • ${item.duracao || 0} MINUTOS`;
+            document.getElementById('modal-descricao').innerText = item.descricao || "Sem descrição disponível.";
             document.getElementById('item-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
 
             const area = document.getElementById('content-area');
             if(item.videoId) {
-                // Checa se tem tempo salvo
                 const snap = await getDoc(doc(db, "usuarios", usuarioLogado.uid, "progresso", item.videoId));
                 const startSec = snap.exists() ? snap.data().tempo : 0;
 
-                area.innerHTML = `<div id="yt-player-frame" class="w-full h-full"></div>`;
+                area.innerHTML = `<div id="yt-player-frame"></div>`;
                 player = new YT.Player('yt-player-frame', {
                     videoId: item.videoId,
-                    playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0 },
+                    playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0, 'modestbranding': 1 },
                     events: {
                         'onStateChange': (event) => {
                             if (event.data === YT.PlayerState.PAUSED) {
@@ -256,7 +266,7 @@
                     }
                 });
             } else {
-                area.innerHTML = `<a href="${item.pdf}" target="_blank" class="bg-red-600 px-8 py-3 rounded font-black uppercase">Abrir PDF</a>`;
+                area.innerHTML = `<div class="flex h-full items-center justify-center"><a href="${item.pdf}" target="_blank" class="bg-red-600 px-10 py-4 rounded font-black uppercase text-white shadow-lg">Abrir Documento Técnico</a></div>`;
             }
         };
 
@@ -267,7 +277,7 @@
             }
             document.getElementById('item-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
-            carregarPortal(); // Atualiza a home
+            carregarPortal();
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -278,7 +288,7 @@
                     document.getElementById('auth-container').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
                     carregarPortal();
-                } else { signOut(auth); }
+                } else signOut(auth);
             }
         });
     </script>
