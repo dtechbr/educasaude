@@ -11,11 +11,10 @@
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
         .row-container { padding: 0 4% 30px 4%; }
         .row-header { font-size: 1.4vw; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; }
-        
-        /* Netflix Style Scroller */
         .scroller { display: flex; overflow-x: auto; gap: 15px; scroll-behavior: smooth; padding: 15px 0; scrollbar-width: none; }
         .scroller::-webkit-scrollbar { display: none; }
         
+        /* Netflix Style Card */
         .netflix-card { 
             position: relative; min-width: 280px; height: 160px; background: #2f2f2f; 
             border-radius: 6px; cursor: pointer; transition: 0.3s; overflow: hidden;
@@ -26,14 +25,11 @@
         .card-info { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 12px; opacity: 0; transition: 0.2s; }
         .netflix-card:hover .card-info { opacity: 1; }
         
-        .doc-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1f1f1f; }
+        /* Inputs e Senha */
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .netflix-input:focus { border-bottom: 2px solid #E50914 !important; }
-        
-        /* Estilo para o olhinho da senha */
         .pass-wrapper { position: relative; width: 100%; }
-        .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; }
-        .eye-icon:hover { color: white; }
+        .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10; }
         
         .hidden { display: none !important; }
     </style>
@@ -44,25 +40,21 @@
         <div class="bg-black/85 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
             <h1 class="text-red-600 font-black text-4xl mb-8 text-center italic tracking-tighter uppercase">EDUCA<span class="text-white">SAÚDE</span></h1>
             
-            <p id="auth-msg" class="text-xs text-center mb-4 font-bold min-h-[15px]"></p>
+            <p id="auth-msg" class="text-xs text-center mb-4 font-bold min-h-[1.5rem] uppercase italic"></p>
 
             <div id="login-form">
                 <div class="space-y-4">
-                    <input type="email" id="login-email" placeholder="E-mail" class="netflix-input">
+                    <input type="email" id="login-email" placeholder="E-mail Institucional" class="netflix-input">
                     <div class="pass-wrapper">
-                        <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
+                        <input type="password" id="login-password" placeholder="Sua Senha" class="netflix-input">
                         <i class="fas fa-eye eye-icon" onclick="togglePass('login-password', this)"></i>
                     </div>
-                    <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition uppercase tracking-widest">Entrar</button>
-                    <div class="flex justify-between text-[10px] text-gray-500 font-black mt-4 uppercase italic">
-                        <button onclick="toggleAuth('signup')" class="hover:text-white transition">Solicitar Novo Acesso</button>
-                        <button onclick="esqueciSenha()" class="hover:text-white transition">Esqueci Senha</button>
-                    </div>
+                    <button onclick="fazerLogin()" class="w-full bg-red-600 py-4 rounded font-black hover:bg-red-700 transition uppercase">Entrar</button>
+                    <button onclick="toggleAuth('signup')" class="w-full text-[10px] text-gray-500 mt-4 hover:text-white font-black uppercase italic">Solicitar Novo Acesso</button>
                 </div>
             </div>
 
             <div id="signup-form" class="hidden">
-                <h2 class="text-white font-black mb-4 uppercase italic text-xl">Solicitar Cadastro</h2>
                 <div class="space-y-4">
                     <input type="text" id="signup-nome" placeholder="Nome Completo" class="netflix-input">
                     <input type="email" id="signup-email" placeholder="E-mail de Trabalho" class="netflix-input">
@@ -70,7 +62,7 @@
                         <input type="password" id="signup-password" placeholder="Criar Senha (mín. 6)" class="netflix-input">
                         <i class="fas fa-eye eye-icon" onclick="togglePass('signup-password', this)"></i>
                     </div>
-                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase tracking-widest">Enviar Solicitação</button>
+                    <button onclick="fazerCadastro()" class="w-full bg-blue-600 py-4 rounded font-black hover:bg-blue-700 transition uppercase">Enviar Solicitação</button>
                     <button onclick="toggleAuth('login')" class="w-full text-[10px] text-gray-500 mt-2 hover:text-white font-black uppercase">Voltar</button>
                 </div>
             </div>
@@ -78,34 +70,28 @@
     </div>
 
     <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80" id="navbar">
-            <h1 class="text-red-600 font-black text-2xl italic tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
-            <div class="flex items-center gap-6">
-                <div class="text-right">
-                    <p id="user-display-email" class="text-[10px] font-bold text-white"></p>
-                    <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic">Sair</button>
-                </div>
-                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-xs font-bold uppercase">GN</div>
-            </div>
+        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/80">
+            <h1 class="text-red-600 font-black text-2xl italic uppercase tracking-tighter">EDUCA<span class="text-white">SAÚDE</span></h1>
+            <button onclick="fazerLogout()" class="text-[10px] text-red-600 font-black uppercase italic border border-red-600 px-3 py-1 rounded hover:bg-red-600 hover:text-white transition">Sair</button>
         </nav>
 
-        <header class="relative h-[65vh] w-full flex items-end pb-16 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
-            <div class="max-w-2xl">
-                <span class="bg-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block uppercase">USF Vila Dutra | SORRI-BAURU</span>
-                <h2 class="text-6xl font-black mb-4 uppercase italic tracking-tighter leading-none">Educação <br>Permanente</h2>
-                <p class="text-zinc-300 font-bold text-lg mb-6">Portal de capacitação continuada e protocolos técnicos.</p>
+        <header class="h-[60vh] flex items-end pb-16 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
+            <div>
+                <span class="bg-red-600 text-[10px] font-black px-2 py-1 rounded mb-2 inline-block">VILA DUTRA | BAURU</span>
+                <h2 class="text-6xl font-black uppercase italic tracking-tighter leading-none">Educação <br>Permanente</h2>
             </div>
         </header>
 
         <section id="categorias-container"></section>
     </div>
 
-    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/98 flex items-center justify-center p-4">
-        <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl border border-white/10">
-            <div id="content-area" class="aspect-video bg-black flex items-center justify-center"></div>
-            <div class="p-8 flex justify-between items-center">
-                <h3 id="modal-titulo" class="text-3xl font-black italic uppercase text-white tracking-tighter"></h3>
-                <button onclick="fecharModal()" class="bg-white text-black px-8 py-3 rounded-full font-black hover:bg-gray-200 transition">FECHAR</button>
+    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
+        <div class="w-full max-w-5xl bg-[#181818] rounded-xl overflow-hidden shadow-2xl">
+            <div id="content-area" class="aspect-video bg-black flex items-center justify-center">
+                </div>
+            <div class="p-8 flex justify-between items-center bg-zinc-900">
+                <h3 id="modal-titulo" class="text-2xl font-black italic uppercase text-white"></h3>
+                <button onclick="fecharModal()" class="bg-white text-black px-8 py-2 rounded-full font-black hover:bg-gray-300 transition uppercase text-sm">Fechar</button>
             </div>
         </div>
     </div>
@@ -113,7 +99,7 @@
     <script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.3/src/lite-yt-embed.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -129,7 +115,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- VISIBILIDADE DA SENHA ---
+        // Funções de Senha e Toggle
         window.togglePass = (id, el) => {
             const input = document.getElementById(id);
             if (input.type === "password") {
@@ -141,86 +127,53 @@
             }
         };
 
-        // --- AUTH LOGIC ---
         window.toggleAuth = (tipo) => {
             document.getElementById('login-form').classList.toggle('hidden', tipo === 'signup');
             document.getElementById('signup-form').classList.toggle('hidden', tipo === 'login');
             document.getElementById('auth-msg').innerText = "";
         };
 
+        // CADASTRO COM FEEDBACK VERDE E RETORNO AUTOMÁTICO
         window.fazerCadastro = async () => {
-    const nome = document.getElementById('signup-nome').value;
-    const email = document.getElementById('signup-email').value;
-    const senha = document.getElementById('signup-password').value;
-    const msg = document.getElementById('auth-msg');
+            const nome = document.getElementById('signup-nome').value;
+            const email = document.getElementById('signup-email').value;
+            const senha = document.getElementById('signup-password').value;
+            const msg = document.getElementById('auth-msg');
 
-    // Validação básica
-    if (!nome || !email || senha.length < 6) {
-        msg.innerText = "Preencha todos os campos (Senha mín. 6 caracteres).";
-        msg.style.color = "#ef4444"; // Vermelho erro
-        return;
-    }
+            if (!nome || !email || senha.length < 6) return alert("Preencha todos os campos corretamente.");
 
-    try {
-        // 1. Cria o usuário no Firebase Auth
-        const res = await createUserWithEmailAndPassword(auth, email, senha);
-        
-        // 2. Registra os dados complementares no Firestore com status pendente
-        await setDoc(doc(db, "usuarios", res.user.uid), { 
-            nome: nome, 
-            email: email, 
-            status: "pendente", 
-            criadoEm: new Date() 
-        });
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, senha);
+                await setDoc(doc(db, "usuarios", res.user.uid), { nome, email, status: "pendente", criadoEm: new Date() });
+                await signOut(auth);
 
-        // 3. Importante: Desloga o usuário imediatamente
-        // O Firebase loga automaticamente ao criar conta, mas o acesso deve ser bloqueado até sua aprovação
-        await signOut(auth);
+                msg.innerText = "CADASTRO SOLICITADO COM SUCESSO! AGUARDE APROVAÇÃO.";
+                msg.style.color = "#10b981"; // Verde
 
-        // 4. Exibe a mensagem de sucesso solicitada
-        msg.innerText = "CADASTRO SOLICITADO COM SUCESSO! AGUARDE APROVAÇÃO.";
-        msg.style.color = "#10b981"; // Verde sucesso
-        msg.style.fontWeight = "900";
-
-        // 5. Redirecionamento automático para o Login após 3 segundos
-        setTimeout(() => {
-            // Volta para a tela de login
-            toggleAuth('login');
-            
-            // Limpa os campos do formulário de cadastro
-            document.getElementById('signup-nome').value = "";
-            document.getElementById('signup-email').value = "";
-            document.getElementById('signup-password').value = "";
-            
-            // Limpa a mensagem de sucesso para o próximo uso
-            msg.innerText = "";
-        }, 3000);
-
-    } catch (err) { 
-        console.error(err);
-        msg.innerText = "ERRO AO SOLICITAR: " + (err.code === 'auth/email-already-in-use' ? "E-mail já cadastrado." : "Tente novamente.");
-        msg.style.color = "#ef4444"; 
-    }
-};
+                setTimeout(() => {
+                    toggleAuth('login');
+                    document.querySelectorAll('#signup-form input').forEach(i => i.value = "");
+                }, 3000);
+            } catch (err) {
+                msg.innerText = "ERRO AO CADASTRAR.";
+                msg.style.color = "#ef4444";
+            }
+        };
 
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-password').value;
             const msg = document.getElementById('auth-msg');
-
             signInWithEmailAndPassword(auth, e, s).then(async (res) => {
                 const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
                     location.reload();
                 } else {
-                    msg.innerText = "Acesso Pendente: Aguarde aprovação da coordenação.";
-                    msg.style.color = "#f59e0b"; // Amarelo aviso
+                    msg.innerText = "ACESSO PENDENTE DE APROVAÇÃO.";
+                    msg.style.color = "#f59e0b";
                     signOut(auth);
                 }
-            }).catch(() => { 
-                msg.innerText = "E-mail ou senha incorretos.";
-                msg.style.color = "#ef4444"; 
-            });
+            }).catch(() => { msg.innerText = "DADOS INVÁLIDOS."; msg.style.color = "#ef4444"; });
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
@@ -231,13 +184,11 @@
                 if(userDoc.exists() && userDoc.data().status === "aprovado") {
                     document.getElementById('auth-container').classList.add('hidden');
                     document.getElementById('main-content').classList.remove('hidden');
-                    document.getElementById('user-display-email').innerText = user.email;
                     carregarPortal();
                 } else { signOut(auth); }
             }
         });
 
-        // --- PORTAL RENDER ---
         async function carregarPortal() {
             const q = query(collection(db, "aulas"), orderBy("criadoEm", "desc"));
             const snapshot = await getDocs(q);
@@ -252,33 +203,36 @@
                 const itens = dados.filter(i => i.cat === cat);
                 const row = document.createElement('div');
                 row.className = 'row-container';
-                row.innerHTML = `<h2 class="row-header"><i class="fas fa-play text-[10px] mr-2 text-red-600"></i> ${cat}</h2><div class="scroller">${itens.map(item => `
+                row.innerHTML = `<h2 class="row-header"><i class="fas fa-play text-red-600 mr-2 text-[10px]"></i> ${cat}</h2><div class="scroller">${itens.map(item => `
                     <div class="netflix-card" onclick='abrirItem(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                        ${item.videoId ? `<img src="https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg">` : `<div class="doc-thumb"><i class="fas fa-file-pdf text-5xl text-red-600"></i></div>`}
-                        <div class="card-info"><p class="font-black truncate text-[10px] uppercase italic">${item.titulo}</p><p class="text-[8px] text-zinc-400 mt-1 uppercase">${item.duracao || 0} min</p></div>
+                        <img src="${item.videoId ? `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg` : 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?q=80&w=300'}">
+                        <div class="card-info"><p class="font-black truncate text-[10px] uppercase italic">${item.titulo}</p></div>
                     </div>`).join('')}</div>`;
                 container.appendChild(row);
             });
         }
 
+        // CORREÇÃO DO VÍDEO: Injeção direta de HTML para forçar a renderização
         window.abrirItem = (item) => {
             const area = document.getElementById('content-area');
             document.getElementById('modal-titulo').innerText = item.titulo;
+            
             if(item.videoId) {
-                area.innerHTML = `<lite-youtube videoid="${item.videoId}" params="autoplay=1&rel=0"></lite-youtube>`;
-            } else {
-                area.innerHTML = `<div class="text-center p-10"><i class="fas fa-file-pdf text-red-600 text-8xl mb-6"></i><br><a href="${item.pdf}" target="_blank" class="bg-red-600 px-10 py-4 rounded font-black hover:bg-red-700 transition uppercase tracking-tighter">Abrir Documento</a></div>`;
+                // Injetamos o componente lite-youtube diretamente
+                area.innerHTML = `<lite-youtube videoid="${item.videoId}" style="width:100%; height:100%; max-width:100%"></lite-youtube>`;
+            } else if(item.pdf) {
+                area.innerHTML = `<div class="text-center"><i class="fas fa-file-pdf text-red-600 text-8xl mb-4"></i><br><a href="${item.pdf}" target="_blank" class="bg-red-600 px-10 py-3 rounded font-black uppercase text-white">Abrir PDF</a></div>`;
             }
+
             document.getElementById('item-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         };
 
         window.fecharModal = () => {
             document.getElementById('item-modal').classList.add('hidden');
-            document.getElementById('content-area').innerHTML = "";
+            document.getElementById('content-area').innerHTML = ""; // Limpa para parar o áudio do vídeo
             document.body.style.overflow = 'auto';
         };
     </script>
 </body>
 </html>
-
