@@ -9,7 +9,6 @@
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
         
-        /* Ajuste de Padding para o Nav não cobrir o conteúdo */
         #main-content { padding-top: 80px; }
 
         .row-container { padding: 0 4% 30px 4%; }
@@ -31,15 +30,15 @@
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .hidden { display: none !important; }
         
-        /* Modal Fullscreen Totalmente Opaco */
         .fullscreen-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000000; /* Totalmente preto, sem transparência */
+            background-color: #000000;
             z-index: 9999; overflow-y: auto;
         }
 
-        .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #E50914; }
-        .comment-input { background: #333; color: white; border-radius: 4px; padding: 12px; width: 100%; border: 1px solid #444; }
+        .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #E50914; }
+        .comment-input { background: #1f1f1f; color: white; border-radius: 8px; padding: 16px; width: 100%; border: 1px solid #333; transition: border 0.3s; }
+        .comment-input:focus { border-color: #E50914; outline: none; }
     </style>
 </head>
 <body>
@@ -78,43 +77,41 @@
     <div id="item-modal" class="hidden fullscreen-modal">
         <div class="w-full">
             <div class="absolute top-6 left-6 z-[10001]">
-                <button onclick="fecharModal()" class="flex items-center gap-2 text-white bg-black/50 px-6 py-2 rounded-full hover:bg-red-600 transition">
-                    <i class="fas fa-arrow-left"></i> VOLTAR
+                <button onclick="fecharModal()" class="flex items-center gap-2 text-white bg-black/60 px-6 py-3 rounded-full hover:bg-red-600 transition font-bold text-sm tracking-widest">
+                    <i class="fas fa-arrow-left"></i> VOLTAR PARA O PORTAL
                 </button>
             </div>
 
-            <div id="content-area" class="w-full aspect-video bg-black shadow-2xl"></div>
+            <div id="content-area" class="w-full h-[85vh] bg-black shadow-2xl"></div>
             
-            <div class="max-w-6xl mx-auto p-12">
-                <div class="flex justify-between items-start mb-10">
-                    <div>
-                        <h3 id="modal-titulo" class="text-5xl font-black text-white tracking-tight uppercase italic"></h3>
-                        <div class="flex items-center gap-8 mt-6">
-                            <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-3 transition-all duration-300 hover:scale-110">
-                                <i class="fas fa-heart text-3xl"></i>
-                                <span id="count-curtidas" class="font-bold text-xl">0</span>
-                            </button>
-                            <span id="modal-meta" class="text-red-600 text-sm font-black uppercase tracking-[0.2em] border-l border-white/20 pl-8"></span>
-                        </div>
+            <div class="max-w-7xl mx-auto p-8 lg:p-16">
+                <div class="mb-12">
+                    <h3 id="modal-titulo" class="text-5xl lg:text-6xl font-black text-white tracking-tight uppercase italic mb-6"></h3>
+                    <div class="flex items-center gap-8">
+                        <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-3 transition-all duration-300 hover:scale-110">
+                            <i class="fas fa-heart text-3xl"></i>
+                            <span id="count-curtidas" class="font-bold text-2xl">0</span>
+                        </button>
+                        <span id="modal-meta" class="text-red-600 text-base font-black uppercase tracking-[0.3em] border-l border-white/20 pl-8"></span>
                     </div>
                 </div>
                 
-                <div id="modal-descricao" class="text-zinc-400 text-xl mb-12 border-l-4 border-red-600 pl-6 leading-relaxed max-w-4xl"></div>
+                <div id="modal-descricao" class="text-zinc-300 text-xl lg:text-2xl mb-16 border-l-4 border-red-600 pl-8 leading-relaxed italic opacity-90"></div>
 
-                <div class="border-t border-white/10 pt-12">
-                    <h4 class="text-white font-black mb-8 uppercase text-sm tracking-widest flex items-center gap-3">
-                        <i class="fas fa-comments text-red-600"></i> Fórum de Discussão Técnica
+                <div class="border-t border-white/10 pt-16">
+                    <h4 class="text-white font-black mb-10 uppercase text-lg tracking-widest flex items-center gap-4">
+                        <i class="fas fa-comments text-red-600 text-2xl"></i> Fórum de Discussão e Notas Técnicas
                     </h4>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                        <div class="lg:col-span-2">
-                            <div id="lista-comentarios" class="space-y-6 max-h-[500px] overflow-y-auto pr-6"></div>
+                    <div class="flex flex-col gap-10">
+                        <div class="w-full space-y-4">
+                            <textarea id="novo-comentario" rows="4" placeholder="Escreva aqui suas observações, dúvidas ou notas técnicas (ex: para prontuário)..." class="comment-input text-xl"></textarea>
+                            <div class="flex justify-end">
+                                <button onclick="postarComentario()" class="bg-red-600 hover:bg-red-700 px-12 py-5 rounded font-black uppercase text-base text-white transition shadow-lg">Publicar Comentário</button>
+                            </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <textarea id="novo-comentario" rows="4" placeholder="Sua contribuição ou dúvida técnica..." class="comment-input text-lg"></textarea>
-                            <button onclick="postarComentario()" class="w-full bg-red-600 hover:bg-red-700 py-4 rounded font-black uppercase text-sm text-white transition">Publicar Comentário</button>
-                        </div>
+                        <div id="lista-comentarios" class="space-y-6 w-full"></div>
                     </div>
                 </div>
             </div>
@@ -197,7 +194,7 @@
             const q = query(collection(db, "aulas", id, "comentarios"), orderBy("data", "desc"));
             unsubComentarios = onSnapshot(q, (snap) => {
                 const lista = document.getElementById('lista-comentarios');
-                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-[10px] text-red-600 font-black uppercase mb-1">${d.data().usuario}</p><p class="text-zinc-300 text-lg">${d.data().texto}</p></div>`).join('');
+                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-xs text-red-600 font-black uppercase mb-2">${d.data().usuario}</p><p class="text-zinc-300 text-xl leading-relaxed">${d.data().texto}</p></div>`).join('');
             });
         }
 
