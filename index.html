@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #141414; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        
+        /* Ajuste de Padding para o Nav não cobrir o conteúdo */
+        #main-content { padding-top: 80px; }
+
         .row-container { padding: 0 4% 30px 4%; }
         .row-header { font-size: 1.4rem; color: #e5e5e5; font-weight: 700; margin-bottom: 0.8em; display: flex; align-items: center; text-transform: uppercase; }
         .scroller { display: flex; overflow-x: auto; gap: 20px; scroll-behavior: smooth; padding: 20px 0; scrollbar-width: none; }
@@ -18,7 +22,7 @@
             border-radius: 8px; cursor: pointer; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
         }
-        .netflix-card:hover { transform: scale(1.08); z-index: 20; border-color: #E50914; }
+        .netflix-card:hover { transform: scale(1.05); z-index: 10; border-color: #E50914; }
         .netflix-card img { width: 100%; height: 100%; object-fit: cover; }
         
         .progress-bar-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(0,0,0,0.5); }
@@ -27,7 +31,13 @@
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .hidden { display: none !important; }
         
-        /* Estilo Comentários */
+        /* Modal Fullscreen Totalmente Opaco */
+        .fullscreen-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000000; /* Totalmente preto, sem transparência */
+            z-index: 9999; overflow-y: auto;
+        }
+
         .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #E50914; }
         .comment-input { background: #333; color: white; border-radius: 4px; padding: 12px; width: 100%; border: 1px solid #444; }
     </style>
@@ -36,7 +46,7 @@
 
     <div id="auth-container" class="min-h-screen flex items-center justify-center bg-black px-4" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069'); background-size: cover;">
         <div class="bg-black/85 p-10 rounded-lg w-full max-w-md border border-white/10 shadow-2xl backdrop-blur-sm">
-            <h1 class="text-red-600 font-black text-4xl mb-8 text-center uppercase italic"><span class="text-white"></span></h1>
+            <h1 class="text-red-600 font-black text-4xl mb-8 text-center uppercase italic">EDUCA<span class="text-white">SAÚDE</span></h1>
             <div id="login-form" class="space-y-4">
                 <input type="email" id="login-email" placeholder="E-mail" class="netflix-input">
                 <input type="password" id="login-password" placeholder="Senha" class="netflix-input">
@@ -46,7 +56,7 @@
     </div>
 
     <div id="main-content" class="hidden">
-        <nav class="fixed top-0 w-full z-50 px-12 py-4 flex justify-between items-center bg-black/90 backdrop-blur-md border-b border-white/5">
+        <nav class="fixed top-0 w-full z-50 px-8 py-4 flex justify-between items-center bg-black/95 backdrop-blur-md border-b border-white/5">
             <h1 class="text-red-600 font-black text-2xl uppercase italic">EDUCA<span class="text-white">SAÚDE</span></h1>
             <div class="flex items-center gap-6">
                 <span id="user-display-name" class="text-zinc-400 font-bold text-xs uppercase tracking-widest border-r border-white/20 pr-6"></span>
@@ -54,7 +64,7 @@
             </div>
         </nav>
 
-        <header class="h-[65vh] flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
+        <header class="h-[60vh] flex items-end pb-20 px-12 bg-cover bg-center mb-10" style="background-image: linear-gradient(to top, #141414, transparent), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070');">
             <div class="max-w-3xl">
                 <span class="bg-red-600 text-[10px] font-black px-3 py-1 rounded mb-4 inline-block uppercase tracking-widest">SORRI-BAURU</span>
                 <h2 class="text-6xl font-black uppercase italic tracking-tighter mb-4">Educação Permanente</h2>
@@ -65,36 +75,46 @@
         <section id="categorias-container"></section>
     </div>
 
-    <div id="item-modal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-5xl bg-[#181818] rounded-2xl overflow-y-auto max-h-[95vh] shadow-2xl border border-white/10">
-            <div id="content-area" class="aspect-video bg-black"></div>
+    <div id="item-modal" class="hidden fullscreen-modal">
+        <div class="w-full">
+            <div class="absolute top-6 left-6 z-[10001]">
+                <button onclick="fecharModal()" class="flex items-center gap-2 text-white bg-black/50 px-6 py-2 rounded-full hover:bg-red-600 transition">
+                    <i class="fas fa-arrow-left"></i> VOLTAR
+                </button>
+            </div>
+
+            <div id="content-area" class="w-full aspect-video bg-black shadow-2xl"></div>
             
-            <div class="p-8">
-                <div class="flex justify-between items-start mb-6">
+            <div class="max-w-6xl mx-auto p-12">
+                <div class="flex justify-between items-start mb-10">
                     <div>
-                        <h3 id="modal-titulo" class="text-3xl font-bold text-white tracking-tight"></h3>
-                        <div class="flex items-center gap-6 mt-4">
-                            <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-2 transition-all duration-300">
-                                <i class="fas fa-heart text-2xl"></i>
-                                <span id="count-curtidas" class="font-bold text-sm">0</span>
+                        <h3 id="modal-titulo" class="text-5xl font-black text-white tracking-tight uppercase italic"></h3>
+                        <div class="flex items-center gap-8 mt-6">
+                            <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-3 transition-all duration-300 hover:scale-110">
+                                <i class="fas fa-heart text-3xl"></i>
+                                <span id="count-curtidas" class="font-bold text-xl">0</span>
                             </button>
-                            <span id="modal-meta" class="text-red-600 text-xs font-black uppercase tracking-widest"></span>
+                            <span id="modal-meta" class="text-red-600 text-sm font-black uppercase tracking-[0.2em] border-l border-white/20 pl-8"></span>
                         </div>
                     </div>
-                    <button onclick="fecharModal()" class="text-zinc-500 hover:text-white transition"><i class="fas fa-times text-2xl"></i></button>
                 </div>
                 
-                <div id="modal-descricao" class="text-zinc-400 italic mb-8 border-l-2 border-red-600 pl-4 text-sm leading-relaxed"></div>
+                <div id="modal-descricao" class="text-zinc-400 text-xl mb-12 border-l-4 border-red-600 pl-6 leading-relaxed max-w-4xl"></div>
 
-                <div class="border-t border-white/10 pt-8">
-                    <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest flex items-center gap-2">
-                        <i class="fas fa-comments text-red-600"></i> Comentários da Equipe
+                <div class="border-t border-white/10 pt-12">
+                    <h4 class="text-white font-black mb-8 uppercase text-sm tracking-widest flex items-center gap-3">
+                        <i class="fas fa-comments text-red-600"></i> Fórum de Discussão Técnica
                     </h4>
-                    <div id="lista-comentarios" class="space-y-4 max-h-64 overflow-y-auto pr-4 mb-6"></div>
                     
-                    <div class="flex flex-col gap-3">
-                        <textarea id="novo-comentario" rows="2" placeholder="Sua dúvida ou contribuição técnica..." class="comment-input"></textarea>
-                        <button onclick="postarComentario()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded font-black uppercase text-xs self-end text-white transition">Enviar Comentário</button>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                        <div class="lg:col-span-2">
+                            <div id="lista-comentarios" class="space-y-6 max-h-[500px] overflow-y-auto pr-6"></div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <textarea id="novo-comentario" rows="4" placeholder="Sua contribuição ou dúvida técnica..." class="comment-input text-lg"></textarea>
+                            <button onclick="postarComentario()" class="w-full bg-red-600 hover:bg-red-700 py-4 rounded font-black uppercase text-sm text-white transition">Publicar Comentário</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,7 +142,6 @@
 
         let player, videoAtualId = null, aulaDocId = null, usuarioLogado = null, unsubComentarios = null;
 
-        // Login e Sessão
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-password').value;
@@ -144,14 +163,12 @@
             }
         });
 
-        // Lógica de Continuar Assistindo
         async function salvarProgresso(vId, t) {
             if (!usuarioLogado || !vId || isNaN(t)) return;
             const ref = doc(db, "usuarios", usuarioLogado.uid, "progresso", vId);
             await setDoc(ref, { videoId: vId, tempo: Math.floor(t), atualizadoEm: new Date() }, { merge: true });
         }
 
-        // Curtidas
         window.toggleCurtida = async () => {
             const ref = doc(db, "aulas", aulaDocId, "curtidas", usuarioLogado.uid);
             const snap = await getDoc(ref);
@@ -164,11 +181,10 @@
             const snap = await getDocs(collection(db, "aulas", aulaDocId, "curtidas"));
             const btn = document.getElementById('btn-curtir');
             const userCurtiu = snap.docs.some(d => d.id === usuarioLogado.uid);
-            btn.className = userCurtiu ? "text-red-600 flex items-center gap-2" : "text-zinc-500 flex items-center gap-2";
+            btn.style.color = userCurtiu ? "#E50914" : "#52525b";
             document.getElementById('count-curtidas').innerText = snap.size;
         }
 
-        // Comentários em Tempo Real
         window.postarComentario = async () => {
             const t = document.getElementById('novo-comentario').value;
             if (!t.trim()) return;
@@ -181,11 +197,10 @@
             const q = query(collection(db, "aulas", id, "comentarios"), orderBy("data", "desc"));
             unsubComentarios = onSnapshot(q, (snap) => {
                 const lista = document.getElementById('lista-comentarios');
-                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-[10px] text-red-600 font-black uppercase mb-1">${d.data().usuario}</p><p class="text-zinc-300 text-sm">${d.data().texto}</p></div>`).join('');
+                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-[10px] text-red-600 font-black uppercase mb-1">${d.data().usuario}</p><p class="text-zinc-300 text-lg">${d.data().texto}</p></div>`).join('');
             });
         }
 
-        // Portal
         async function carregarPortal() {
             const snapAulas = await getDocs(query(collection(db, "aulas"), orderBy("criadoEm", "desc")));
             const aulas = []; snapAulas.forEach(d => aulas.push({ id: d.id, ...d.data() }));
@@ -196,7 +211,6 @@
             const container = document.getElementById('categorias-container');
             container.innerHTML = '';
 
-            // Seção Continuar
             const incompletas = aulas.filter(a => progMap[a.videoId] > 10);
             if(incompletas.length > 0) renderizarLinha("Continuar Assistindo", incompletas, container, true);
 
@@ -208,7 +222,8 @@
             const div = document.createElement('div');
             div.className = 'row-container';
             div.innerHTML = `<h2 class="row-header"><i class="fas ${hist ? 'fa-history' : 'fa-play'} text-red-600 mr-3 text-sm"></i>${tit}</h2>
-                <div class="scroller">${its.map(i => `<div class="netflix-card" onclick='abrirItem(${JSON.stringify(i).replace(/'/g, "&apos;")})'>
+                <div class="scroller">${its.map(i => `
+                <div class="netflix-card" onclick='abrirItem(${JSON.stringify(i).replace(/'/g, "&apos;")})'>
                     <img src="https://img.youtube.com/vi/${i.videoId}/mqdefault.jpg">
                     <div class="absolute bottom-0 p-4 bg-gradient-to-t from-black to-transparent w-full">
                         <p class="font-bold truncate text-[10px] uppercase">${i.titulo}</p>
@@ -235,7 +250,7 @@
             document.getElementById('content-area').innerHTML = `<div id="yt-player" class="w-full h-full"></div>`;
             player = new YT.Player('yt-player', { 
                 videoId: item.videoId, 
-                playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0 },
+                playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0, 'modestbranding': 1 },
                 events: { 'onStateChange': (e) => { if(e.data === 2) salvarProgresso(videoAtualId, player.getCurrentTime()); } }
             });
         };
@@ -250,5 +265,3 @@
     </script>
 </body>
 </html>
-
-
