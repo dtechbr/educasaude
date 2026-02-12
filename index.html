@@ -30,15 +30,33 @@
         .netflix-input { background: #333 !important; color: white !important; border: none !important; width: 100%; padding: 1rem; border-radius: 4px; outline: none; }
         .hidden { display: none !important; }
         
+        /* Modal Cinema Mode */
         .fullscreen-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000000;
             z-index: 9999; overflow-y: auto;
         }
 
-        .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #E50914; }
-        .comment-input { background: #1f1f1f; color: white; border-radius: 8px; padding: 16px; width: 100%; border: 1px solid #333; transition: border 0.3s; }
-        .comment-input:focus { border-color: #E50914; outline: none; }
+        /* Container do Player focado em Altura */
+        .video-hero-container {
+            width: 100%;
+            height: 90vh; /* Altura máxima para impacto visual */
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .video-wrapper {
+            height: 100%;
+            aspect-ratio: 16 / 9; /* Mantém a proporção correta */
+            max-width: 100%;
+        }
+
+        .comment-box { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #E50914; }
+        .comment-input { background: #1a1a1a; color: white; border-radius: 8px; padding: 20px; width: 100%; border: 1px solid #333; transition: all 0.3s; }
+        .comment-input:focus { border-color: #E50914; background: #222; outline: none; }
     </style>
 </head>
 <body>
@@ -76,42 +94,49 @@
 
     <div id="item-modal" class="hidden fullscreen-modal">
         <div class="w-full">
-            <div class="absolute top-6 left-6 z-[10001]">
-                <button onclick="fecharModal()" class="flex items-center gap-2 text-white bg-black/60 px-6 py-3 rounded-full hover:bg-red-600 transition font-bold text-sm tracking-widest">
-                    <i class="fas fa-arrow-left"></i> VOLTAR PARA O PORTAL
+            <div class="absolute top-8 left-8 z-[10001]">
+                <button onclick="fecharModal()" class="flex items-center gap-3 text-white bg-black/80 border border-white/10 px-8 py-4 rounded-full hover:bg-red-600 transition font-black text-xs tracking-[0.2em] shadow-2xl">
+                    <i class="fas fa-chevron-left"></i> VOLTAR AO PORTAL
                 </button>
             </div>
 
-            <div id="content-area" class="w-full h-[85vh] bg-black shadow-2xl"></div>
+            <div class="video-hero-container">
+                <div class="video-wrapper">
+                    <div id="content-area" class="w-full h-full"></div>
+                </div>
+            </div>
             
-            <div class="max-w-7xl mx-auto p-8 lg:p-16">
-                <div class="mb-12">
-                    <h3 id="modal-titulo" class="text-5xl lg:text-6xl font-black text-white tracking-tight uppercase italic mb-6"></h3>
-                    <div class="flex items-center gap-8">
-                        <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-3 transition-all duration-300 hover:scale-110">
-                            <i class="fas fa-heart text-3xl"></i>
-                            <span id="count-curtidas" class="font-bold text-2xl">0</span>
+            <div class="max-w-6xl mx-auto px-8 py-16">
+                <div class="mb-16">
+                    <h3 id="modal-titulo" class="text-5xl lg:text-7xl font-black text-white tracking-tighter uppercase italic mb-8 leading-none"></h3>
+                    <div class="flex items-center gap-10">
+                        <button id="btn-curtir" onclick="toggleCurtida()" class="flex items-center gap-4 transition-all duration-300 hover:scale-110">
+                            <i class="fas fa-heart text-4xl"></i>
+                            <span id="count-curtidas" class="font-black text-3xl">0</span>
                         </button>
-                        <span id="modal-meta" class="text-red-600 text-base font-black uppercase tracking-[0.3em] border-l border-white/20 pl-8"></span>
+                        <span id="modal-meta" class="text-red-600 text-lg font-black uppercase tracking-[0.4em] border-l-2 border-red-600/30 pl-10"></span>
                     </div>
                 </div>
                 
-                <div id="modal-descricao" class="text-zinc-300 text-xl lg:text-2xl mb-16 border-l-4 border-red-600 pl-8 leading-relaxed italic opacity-90"></div>
+                <div id="modal-descricao" class="text-zinc-400 text-xl lg:text-2xl mb-20 border-l-4 border-red-600 pl-10 leading-relaxed max-w-5xl italic"></div>
 
-                <div class="border-t border-white/10 pt-16">
-                    <h4 class="text-white font-black mb-10 uppercase text-lg tracking-widest flex items-center gap-4">
-                        <i class="fas fa-comments text-red-600 text-2xl"></i> Fórum de Discussão e Notas Técnicas
-                    </h4>
+                <div class="border-t border-white/10 pt-20">
+                    <div class="flex items-center justify-between mb-12">
+                        <h4 class="text-white font-black uppercase text-xl tracking-widest flex items-center gap-4">
+                            <i class="fas fa-comments text-red-600 text-3xl"></i> Fórum e Notas de Prontuário
+                        </h4>
+                        <span class="text-zinc-500 font-bold text-xs uppercase tracking-widest">Limite sugerido: 1000 caracteres</span>
+                    </div>
                     
-                    <div class="flex flex-col gap-10">
-                        <div class="w-full space-y-4">
-                            <textarea id="novo-comentario" rows="4" placeholder="Escreva aqui suas observações, dúvidas ou notas técnicas (ex: para prontuário)..." class="comment-input text-xl"></textarea>
-                            <div class="flex justify-end">
-                                <button onclick="postarComentario()" class="bg-red-600 hover:bg-red-700 px-12 py-5 rounded font-black uppercase text-base text-white transition shadow-lg">Publicar Comentário</button>
+                    <div class="space-y-12">
+                        <div class="w-full">
+                            <textarea id="novo-comentario" rows="5" placeholder="Digite suas observações técnicas aqui..." class="comment-input text-xl"></textarea>
+                            <div class="flex justify-end mt-4">
+                                <button onclick="postarComentario()" class="bg-red-600 hover:bg-red-700 px-16 py-6 rounded font-black uppercase text-sm text-white transition-all shadow-xl hover:tracking-widest">Publicar Nota Técnica</button>
                             </div>
                         </div>
 
-                        <div id="lista-comentarios" class="space-y-6 w-full"></div>
+                        <div id="lista-comentarios" class="space-y-8 pt-8"></div>
                     </div>
                 </div>
             </div>
@@ -142,7 +167,7 @@
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-password').value;
-            signInWithEmailAndPassword(auth, e, s).catch(() => alert("Dados inválidos."));
+            signInWithEmailAndPassword(auth, e, s).catch(() => alert("Acesso negado. Verifique suas credenciais."));
         };
 
         window.fazerLogout = () => signOut(auth).then(() => location.reload());
@@ -178,7 +203,7 @@
             const snap = await getDocs(collection(db, "aulas", aulaDocId, "curtidas"));
             const btn = document.getElementById('btn-curtir');
             const userCurtiu = snap.docs.some(d => d.id === usuarioLogado.uid);
-            btn.style.color = userCurtiu ? "#E50914" : "#52525b";
+            btn.style.color = userCurtiu ? "#E50914" : "#444";
             document.getElementById('count-curtidas').innerText = snap.size;
         }
 
@@ -194,7 +219,7 @@
             const q = query(collection(db, "aulas", id, "comentarios"), orderBy("data", "desc"));
             unsubComentarios = onSnapshot(q, (snap) => {
                 const lista = document.getElementById('lista-comentarios');
-                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-xs text-red-600 font-black uppercase mb-2">${d.data().usuario}</p><p class="text-zinc-300 text-xl leading-relaxed">${d.data().texto}</p></div>`).join('');
+                lista.innerHTML = snap.docs.map(d => `<div class="comment-box"><p class="text-[10px] text-red-600 font-black uppercase mb-3 tracking-widest">${d.data().usuario}</p><p class="text-zinc-300 text-xl leading-relaxed">${d.data().texto}</p></div>`).join('');
             });
         }
 
@@ -247,7 +272,7 @@
             document.getElementById('content-area').innerHTML = `<div id="yt-player" class="w-full h-full"></div>`;
             player = new YT.Player('yt-player', { 
                 videoId: item.videoId, 
-                playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0, 'modestbranding': 1 },
+                playerVars: { 'autoplay': 1, 'start': startSec, 'rel': 0, 'modestbranding': 1, 'showinfo': 0 },
                 events: { 'onStateChange': (e) => { if(e.data === 2) salvarProgresso(videoAtualId, player.getCurrentTime()); } }
             });
         };
