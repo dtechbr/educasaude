@@ -1,0 +1,26 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#24142f"><title>Apresentador — Outubro Rosa</title><link rel="stylesheet" href="./styles.css"></head>
+<body><div class="wrap"><header class="top"><div class="brand"><div class="ribbon">🎀</div><div>DESAFIO <span style="color:var(--pink2)">OUTUBRO ROSA</span><div class="small">Painel do apresentador</div></div></div><a href="./">Página dos participantes ↗</a></header>
+<main class="content">
+<section class="hero"><div class="eyebrow">USF Vila Dutra</div><h1>Quiz <span class="highlight">ao vivo.</span></h1><p>Crie uma sala, projete a tela e conduza as 10 perguntas.</p></section>
+<section class="panel main-card" id="loginPanel"><h2>Acessar painel de controle</h2><p class="helper">Somente apresentadores autenticados com uma conta Google podem criar e controlar uma partida. Os participantes entram sem conta.</p><button id="loginBtn" class="btn btn-primary btn-block">Entrar com Google</button><p id="loginError" class="message hidden" role="alert"></p></section>
+<section class="panel main-card hidden" id="createPanel"><div class="label-row"><h2 style="margin:0">Nova partida</h2><button class="btn btn-secondary" id="logoutBtn">Sair</button></div><p class="helper">10 perguntas • 30 segundos por questão • classificação atualizada em tempo real.</p>
+<button class="btn btn-primary btn-block" id="createBtn">Criar sala e gerar código</button><p class="message hidden" id="createError" role="alert"></p></section>
+<section class="stack hidden" id="hostPanel">
+<div class="grid2">
+<div class="panel"><div class="label-row"><div><div class="eyebrow">Código para entrar</div><div class="code" id="roomCode">------</div></div><div id="phaseBadge" class="pill">Aguardando</div></div>
+<div class="small">Peça aos participantes para acessar:</div><div class="linktext" id="joinUrl"></div>
+<div class="share"><button class="btn btn-secondary" id="copyBtn">Copiar link</button><button class="btn btn-secondary" id="fullscreenBtn">Tela cheia</button></div>
+<div id="qrcode" class="qr"></div></div>
+<div class="panel"><h2>Controle da atividade</h2><div class="stats"><div class="stat"><div class="small">Participantes</div><strong id="totalPlayers">0</strong></div><div class="stat"><div class="small">Questão</div><strong id="questionNum">0/10</strong></div><div class="stat"><div class="small">Tempo</div><strong id="timeRemaining">30s</strong></div></div><div class="stack" style="margin-top:18px">
+<button class="btn btn-primary" id="nextBtn">Iniciar quiz</button><button class="btn btn-secondary" id="revealBtn">Revelar respostas</button><button class="btn btn-danger" id="finishBtn">Encerrar partida</button></div>
+<p class="helper" style="margin-top:12px">As perguntas encerram automaticamente após 30 segundos enquanto esta tela estiver aberta.</p><p id="hostError" class="message hidden" role="alert"></p></div>
+</div>
+<div class="panel"><div class="label-row"><div class="eyebrow" id="questionProgress">Aguardando o início</div><div class="timer-label" id="bigClock"></div></div><div class="timer"><div id="timerBar"></div></div>
+<div id="questionArea"><div class="bigcenter"><h2>Preparem os celulares!</h2><p>Compartilhe o código da sala para entrar no jogo.</p></div></div>
+</div>
+<div class="panel"><div class="label-row"><h2 style="margin:0">Ranking</h2><span id="answeredCount" class="pill">0 respostas</span></div><div id="hostLeaderboard" class="leaderboard"></div></div>
+</section>
+</main><footer class="footer">USF Vila Dutra • Outubro Rosa 2026</footer></div>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script type="module" src="./host.js"></script></body></html>
