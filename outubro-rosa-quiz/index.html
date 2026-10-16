@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#24142f"><title>Desafio Outubro Rosa — USF Vila Dutra</title><link rel="stylesheet" href="./styles.css">
+</head><body>
+<div class="wrap"><header class="top"><div class="brand"><div class="ribbon">🎀</div><div>DESAFIO <span style="color:var(--pink2)">OUTUBRO ROSA</span><div class="small">USF Vila Dutra • 2026</div></div></div><a href="./host.html">Sou apresentador ↗</a></header>
+<main class="content">
+<section class="hero"><div class="eyebrow">Conhecimento que cuida</div><h1>Uma disputa <span class="highlight">pela saúde da mulher.</span></h1><p>Responda pelo celular, acumule pontos e acompanhe sua colocação em tempo real.</p></section>
+<section class="panel main-card" id="joinPanel">
+<div class="status"><span class="dot"></span> QUIZ AO VIVO</div><h2 style="margin-top:18px">Entre na partida</h2>
+<form id="joinForm">
+<label class="field" for="code">Código da sala</label><input class="input" id="code" autocomplete="one-time-code" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" placeholder="Ex.: 968505" required>
+<label class="field" for="name">Seu primeiro nome ou apelido</label><input class="input" id="name" maxlength="32" minlength="2" placeholder="Como você aparecerá no ranking" required>
+<button class="btn btn-primary btn-block" type="submit">Entrar na partida →</button></form>
+<div class="helper" style="margin-top:18px">Não precisa criar conta. Aguarde o apresentador liberar cada pergunta. Cada questão vale até 1.000 pontos, com bônus de rapidez.</div>
+<p id="joinError" class="message hidden" role="alert"></p></section>
+<section id="gamePanel" class="hidden stack" aria-live="polite">
+<div class="panel"><div class="label-row"><div id="greeting" class="eyebrow"></div><div id="status" class="pill"></div></div>
+<div id="gameArea"></div></div>
+<div class="panel"><div class="label-row"><h2 style="margin:0">Classificação ao vivo</h2><div class="small" id="playerCount"></div></div><div id="leaderboard" class="leaderboard"></div></div>
+</section>
+</main><footer class="footer">Atividade educativa • USF Vila Dutra • SORRI-BAURU</footer></div>
+<script type="module" src="./player.js"></script></body></html>
