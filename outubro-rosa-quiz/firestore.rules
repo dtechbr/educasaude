@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Estas regras devem ser incorporadas às regras existentes do projeto.
+    // Não substitua as outras permissões de sistemas já em produção.
+    match /rosaQuizSessions/{code} {
+      function signedIn() { return request.auth != null; }
+      function host() { return signedIn() && resource.data.ownerId == request.auth.uid; }
+      function game() { return get(/databases/$(database)/documents/rosaQuizSessions/$(code)).data; }
+      function validName(n) { return n is string && n.size() >= 2 && n.size() <= 32; }
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && code.matches('^[0-9]{6}$')
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.phase == 'lobby'
+        && request.resource.data.questionIndex == -1;
+      allow update: if host() && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if false;
+
+      match /players/{playerUid} {
+        allow read: if signedIn();
+        allow create: if signedIn()
+          && request.auth.uid == playerUid
+          && game().phase != 'finished'
+          && request.resource.data.keys().hasAll(['name','points','answerQuestion','answer','answeredAt','lastCorrect','lastAwardedQuestion','lastEarned','joinedAt'])
+          && request.resource.data.keys().hasOnly(['name','points','answerQuestion','answer','answeredAt','lastCorrect','lastAwardedQuestion','lastEarned','joinedAt'])
+          && validName(request.resource.data.name)
+          && request.resource.data.points == 0
+          && request.resource.data.answerQuestion == -1
+          && request.resource.data.answer == []
+          && request.resource.data.answeredAt == null
+          && request.resource.data.lastCorrect == false
+          && request.resource.data.lastAwardedQuestion == -1
+          && request.resource.data.lastEarned == 0
+          && request.resource.data.joinedAt == request.time;
+        allow update: if signedIn() && (
+          // Apresentador atribui a pontuação; participantes não podem alterá-la.
+          game().ownerId == request.auth.uid
+          || (
+            request.auth.uid == playerUid
+            && game().phase == 'question'
+            && request.time < game().deadline
+            && resource.data.answerQuestion != game().questionIndex
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answer','answerQuestion','answeredAt'])
+            && request.resource.data.answerQuestion == game().questionIndex
+            && request.resource.data.answer is list
+            && request.resource.data.answer.size() >= 1
+            && request.resource.data.answer.size() <= 4
+            && request.resource.data.answer.size() <= game().question.options.size()
+            && request.resource.data.answeredAt == request.time
+          )
+        );
+        allow delete: if false;
+      }
+    }
+  }
+}
